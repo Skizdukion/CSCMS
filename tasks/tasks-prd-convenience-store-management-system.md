@@ -37,6 +37,18 @@
 - `backend/utils/validators.py` - Custom validators for spatial data
 - `backend/utils/validators.py` - Unit tests for validators
 - `test_django_config.py` - Test script to verify Django configuration and GeoDjango setup
+- `frontend/package.json` - Node.js dependencies including React and routing libraries
+- `frontend/src/App.tsx` - Main React application with routing setup
+- `frontend/src/components/Layout/Layout.tsx` - Main layout component with sidebar navigation
+- `frontend/src/components/Layout/Layout.css` - Styles for the layout component
+- `frontend/src/pages/Dashboard.tsx` - Dashboard page with overview cards and quick actions
+- `frontend/src/pages/Dashboard.css` - Styles for the dashboard page
+- `frontend/src/pages/Stores.tsx` - Stores management page with store cards and filters
+- `frontend/src/pages/Stores.css` - Styles for the stores page
+- `frontend/src/pages/Inventory.tsx` - Inventory management page with table view
+- `frontend/src/pages/Inventory.css` - Styles for the inventory page
+- `frontend/src/pages/Reports.tsx` - Reports and analytics page with charts and metrics
+- `frontend/src/pages/Reports.css` - Styles for the reports page
 - `frontend/src/components/Map/StoreMap.jsx` - Interactive map component with Leaflet.js
 - `frontend/src/components/Map/StoreMap.jsx` - Unit tests for map component
 - `frontend/src/components/Store/StoreForm.jsx` - Form component for adding/editing stores
@@ -50,7 +62,6 @@
 - `frontend/src/services/api.js` - API service functions for backend communication
 - `frontend/src/services/api.js` - Unit tests for API services
 - `frontend/src/utils/constants.js` - Application constants and configuration
-- `package.json` - Node.js dependencies including React and mapping libraries
 - `backend/tests/stores/test_views.py` - API view tests for the stores app
 - `backend/tests/stores/test_serializers.py` - Serializer tests for the stores app
 - `backend/tests/stores/tests.py` - Model and integration tests for the stores app
@@ -67,6 +78,7 @@
 - Map components will use Leaflet.js for OpenStreetMap integration.
 - Backend follows modular structure: `backend/apps/` for Django apps, `backend/core/` for core utilities, `backend/api/` for API-level code.
 - Python dependencies are managed in `backend/requirements.txt`.
+- Frontend uses React with TypeScript and React Router for navigation.
 
 ## Tasks
 
@@ -104,7 +116,7 @@
   - [x] 2.11 Seed data with Ho Chi Minh City convenience stores and districts
 
 - [ ] 3.0 Frontend User Interface
-  - [ ] 3.1 Set up React application with routing and state management
+  - [x] 3.1 Set up React application with routing and state management
   - [ ] 3.2 Create main navigation and layout components
   - [ ] 3.3 Build StoreForm component for adding/editing stores
   - [ ] 3.4 Implement StoreList component with search and filtering
