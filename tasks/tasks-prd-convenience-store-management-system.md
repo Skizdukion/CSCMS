@@ -51,6 +51,13 @@
 - `frontend/src/services/api.js` - Unit tests for API services
 - `frontend/src/utils/constants.js` - Application constants and configuration
 - `package.json` - Node.js dependencies including React and mapping libraries
+- `backend/tests/stores/test_views.py` - API view tests for the stores app
+- `backend/tests/stores/test_serializers.py` - Serializer tests for the stores app
+- `backend/tests/stores/tests.py` - Model and integration tests for the stores app
+- `backend/apps/stores/management/commands/seed_data.py` - Django management command for seeding HCM City data
+- `backend/apps/stores/fixtures/hcm_districts.json` - District data for Ho Chi Minh City
+- `backend/apps/stores/fixtures/hcm_stores.json` - Store data for Ho Chi Minh City convenience stores
+- `backend/apps/stores/fixtures/hcm_inventory.json` - Inventory data for stores
 
 ### Notes
 
@@ -63,7 +70,7 @@
 
 ## Tasks
 
-- [ ] 1.0 Database Setup and Spatial Models
+- [x] 1.0 Database Setup and Spatial Models
   - [x] 1.1 Set up PostgreSQL database with PostGIS extension
   - [x] 1.2 Create and check backend Python environment server using conda
     - [x] 1.2.1 Create conda environment with Python 3.9+ and required packages
@@ -77,22 +84,24 @@
   - [x] 1.3 Create Store model with spatial fields (PointField for coordinates)
   - [x] 1.4 Create Inventory model with store relationship
   - [x] 1.5 Create District model for geographic boundaries
-  - [ ] 1.6 Add spatial indexes to models for performance optimization
-  - [ ] 1.7 Create and run database migrations
-  - [ ] 1.8 Write unit tests for models and spatial field validation
-  - [ ] 1.9 Configure Django admin interface for spatial data management
+  - [x] 1.6 Add spatial indexes to models for performance optimization
+  - [x] 1.7 Create and run database migrations
+  - [x] 1.8 Write unit tests for models and spatial field validation
+  - [x] 1.9 Configure Django admin interface for spatial data management
 
-- [ ] 2.0 Backend API Development
-  - [ ] 2.1 Set up Django REST framework with spatial serializers
-  - [ ] 2.2 Create StoreViewSet with CRUD operations
-  - [ ] 2.3 Implement spatial search endpoints (radius search, district search)
-  - [ ] 2.4 Create InventoryViewSet with store association
-  - [ ] 2.5 Add spatial utility functions for distance calculations
-  - [ ] 2.6 Implement store statistics endpoints (count by district, density analysis)
-  - [ ] 2.7 Add filtering and pagination to API endpoints
-  - [ ] 2.8 Create API documentation using DRF schema
-  - [ ] 2.9 Write comprehensive unit tests for all API endpoints
-  - [ ] 2.10 Add error handling and validation for spatial data
+- [x] 2.0 Backend API Development
+  - [x] 2.1 Set up Django REST framework with spatial serializers
+  - [x] 2.1.1 Reorganize all backend test files into backend/tests/ with subfolders for each app
+  - [x] 2.2 Create StoreViewSet with CRUD operations
+  - [x] 2.3 Implement spatial search endpoints (radius search, district search)
+  - [x] 2.4 Create InventoryViewSet with store association
+  - [x] 2.5 Add spatial utility functions for distance calculations
+  - [x] 2.6 Implement store statistics endpoints (count by district, density analysis)
+  - [x] 2.7 Add filtering and pagination to API endpoints
+  - [x] 2.8 Create API documentation using DRF schema
+  - [x] 2.9 Write comprehensive unit tests for all API endpoints
+  - [x] 2.10 Add error handling and validation for spatial data
+  - [x] 2.11 Seed data with Ho Chi Minh City convenience stores and districts
 
 - [ ] 3.0 Frontend User Interface
   - [ ] 3.1 Set up React application with routing and state management

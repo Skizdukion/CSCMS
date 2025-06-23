@@ -45,11 +45,13 @@ def test_django_config():
 
             with conn.cursor() as cursor:
                 cursor.execute("SELECT version();")
-                pg_version = cursor.fetchone()[0]
+                result = cursor.fetchone()
+                pg_version = result[0] if result else "Unknown"
                 print(f"   - PostgreSQL version: {pg_version}")
 
                 cursor.execute("SELECT PostGIS_Version();")
-                postgis_version = cursor.fetchone()[0]
+                result = cursor.fetchone()
+                postgis_version = result[0] if result else "Unknown"
                 print(f"   - PostGIS version: {postgis_version}")
 
             conn.close()

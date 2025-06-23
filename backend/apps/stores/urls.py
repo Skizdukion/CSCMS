@@ -1,17 +1,30 @@
 """
-URL configuration for stores app.
+URL configuration for the stores app API endpoints.
 """
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from . import views
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
+from backend.apps.stores.views import DistrictViewSet, StoreViewSet, InventoryViewSet
+
+# Create a router and register our viewsets with it
 router = DefaultRouter()
-router.register(r'stores', views.StoreViewSet)
-router.register(r'inventory', views.InventoryViewSet)
-router.register(r'districts', views.DistrictViewSet)
+router.register(r'districts', DistrictViewSet)
+router.register(r'stores', StoreViewSet)
+router.register(r'inventory', InventoryViewSet)
+
+app_name = 'stores'
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('statistics/', views.StatisticsView.as_view(), name='statistics'),
-    path('spatial-search/', views.SpatialSearchView.as_view(), name='spatial-search'),
+    # API endpoints
+    path('api/', include(router.urls)),
+    
+    # API documentation
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='stores:schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='stores:schema'), name='redoc'),
+    
+    # Include DRF authentication URLs
+    path('api-auth/', include('rest_framework.urls')),
 ] 

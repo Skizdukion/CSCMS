@@ -87,14 +87,14 @@ class District(models.Model):
     def contains_point(self, point):
         """Check if a point is within this district's boundary"""
         if self.boundary and point:
-            return self.boundary.contains(point)  # type: ignore[attr-defined]
+            return self.boundary.contains(point)
         return False
     
     def get_stores(self):
         """Get all stores within this district"""
         if self.boundary:
-            return Store.objects.filter(location__within=self.boundary)  # type: ignore[attr-defined]
-        return Store.objects.filter(district=self.name)  # type: ignore[attr-defined]
+            return Store.objects.filter(location__within=self.boundary)  
+        return Store.objects.filter(district=self.name)  
     
     def get_store_count(self):
         """Get the number of stores in this district"""
@@ -103,7 +103,7 @@ class District(models.Model):
     def get_area_centroid(self):
         """Get the centroid of the district boundary"""
         if self.boundary:
-            return self.boundary.centroid  # type: ignore[attr-defined]
+            return self.boundary.centroid  
         return None
 
 class Store(models.Model):
@@ -201,14 +201,14 @@ class Store(models.Model):
     def latitude(self):
         """Get latitude from PointField"""
         if self.location:
-            return self.location.y  # type: ignore[attr-defined]
+            return self.location.y  
         return None
     
     @property
     def longitude(self):
         """Get longitude from PointField"""
         if self.location:
-            return self.location.x  # type: ignore[attr-defined]
+            return self.location.x  
         return None
     
     def set_location(self, latitude, longitude):
@@ -218,7 +218,7 @@ class Store(models.Model):
     def distance_to(self, other_point):
         """Calculate distance to another point in meters"""
         if self.location and other_point:
-            return self.location.distance(other_point) * 111320  # type: ignore[attr-defined] # Convert degrees to meters
+            return self.location.distance(other_point) * 111320   # Convert degrees to meters
         return None
 
 class Inventory(models.Model):
