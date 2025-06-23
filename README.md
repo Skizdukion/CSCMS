@@ -17,16 +17,16 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
 - **Database**: PostgreSQL with PostGIS extension
 - **Cache**: Redis
 - **Containerization**: Docker & Docker Compose
-- **Environment Management**: Pixi for Python dependencies
+- **Environment Management**: Conda for Python dependencies
 
 ## Quick Start
 
 ### Prerequisites
 
 - Docker and Docker Compose
+- Conda (Miniconda or Anaconda)
 - Python 3.9+
 - Node.js 16+
-- Pixi (for Python environment management)
 
 ### Database Setup
 
@@ -45,31 +45,80 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
    docker exec -it convenience_store_db psql -U postgres -d convenience_store_db -c "SELECT PostGIS_Version();"
    ```
 
-### Backend Setup
+### Backend Environment Setup
 
-1. Navigate to the backend directory:
+1. **Create and activate conda environment:**
    ```bash
-   cd backend
+   # Create conda environment with Python 3.11
+   conda create -n cscms-backend python=3.11 -y
+   
+   # Activate the environment
+   conda activate cscms-backend
    ```
 
-2. Set up Python environment with Pixi:
+2. **Install spatial dependencies (GDAL, GEOS, PROJ):**
    ```bash
-   pixi install
+   conda install -c conda-forge gdal geos proj -y
    ```
 
-3. Activate the Pixi environment:
+3. **Install Python dependencies:**
    ```bash
-   pixi shell
+   pip install -r backend/requirements.txt
    ```
 
-4. Install Python dependencies (if not using Pixi):
+4. **Verify installation:**
    ```bash
-   pip install -r requirements.txt
+   # Check Django and DRF
+   python -c "import django; print('Django:', django.get_version())"
+   python -c "import rest_framework; print('DRF:', rest_framework.VERSION)"
+   
+   # Check spatial libraries
+   python -c "from osgeo import gdal; print('GDAL:', gdal.__version__)"
+   
+   # Check database connectivity
+   python -c "import psycopg2; print('psycopg2:', psycopg2.__version__)"
    ```
 
-5. Run Django migrations:
+### Using Environment Activation Scripts
+
+For convenience, we provide activation scripts that set up the environment automatically:
+
+**Linux/macOS:**
+```bash
+source scripts/activate_backend.sh
+```
+
+**Windows:**
+```cmd
+scripts\activate_backend.bat
+```
+
+These scripts will:
+- Activate the conda environment
+- Set the correct PYTHONPATH
+- Configure Django settings
+- Display available commands
+
+### Backend Development
+
+1. **Test Django configuration:**
    ```bash
-   python manage.py migrate
+   # From project root with PYTHONPATH set
+   PYTHONPATH=$(pwd) python backend/manage.py check
+   
+   # Or use the test script
+   PYTHONPATH=$(pwd) python backend/test_django_config.py
+   ```
+
+2. **Run Django development server:**
+   ```bash
+   PYTHONPATH=$(pwd) python backend/manage.py runserver
+   ```
+
+3. **Create and run migrations:**
+   ```bash
+   PYTHONPATH=$(pwd) python backend/manage.py makemigrations
+   PYTHONPATH=$(pwd) python backend/manage.py migrate
    ```
 
 ### Frontend Setup
@@ -89,7 +138,6 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
 
 ```
 ├── backend/                 # Django backend application
-│   ├── pixi.toml           # Pixi environment configuration
 │   ├── requirements.txt    # Python dependencies
 │   ├── manage.py           # Django management script
 │   ├── settings.py         # Django settings
@@ -118,6 +166,9 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
 │   │   ├── services/       # API services
 │   │   └── utils/          # Utility functions
 ├── database/               # Database initialization scripts
+├── scripts/                # Environment activation scripts
+│   ├── activate_backend.sh # Linux/macOS activation script
+│   └── activate_backend.bat # Windows activation script
 ├── docker-compose.yml      # Docker services configuration
 └── README.md               # Project documentation
 ```
@@ -131,36 +182,62 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
 
 ## Testing
 
-- Backend tests: `cd backend && python manage.py test`
+- Backend tests: `cd backend && PYTHONPATH=$(pwd)/.. python manage.py test`
 - Frontend tests: `cd frontend && npm test`
-- All tests: `npm run test:all`
+- Django configuration test: `PYTHONPATH=$(pwd) python backend/test_django_config.py`
 
 ## Environment Management
 
-This project uses Pixi for Python environment management, which provides:
+This project uses Conda for Python environment management, which provides:
 - Reproducible Python environments
-- Automatic dependency resolution
+- Easy installation of spatial libraries (GDAL, GEOS, PROJ)
 - Cross-platform compatibility
-- Better performance than traditional virtual environments
+- Integration with pip for additional packages
 
-### Pixi Commands
+### Conda Commands
 
 ```bash
-# Install dependencies
-pixi install
+# Create environment
+conda create -n cscms-backend python=3.11 -y
 
 # Activate environment
-pixi shell
+conda activate cscms-backend
 
-# Add new dependency
-pixi add package-name
+# Install spatial dependencies
+conda install -c conda-forge gdal geos proj -y
 
-# Remove dependency
-pixi remove package-name
+# Install Python packages via pip
+pip install -r backend/requirements.txt
 
-# Update dependencies
-pixi update
+# Deactivate environment
+conda deactivate
+
+# List environments
+conda env list
+
+# Remove environment (if needed)
+conda env remove -n cscms-backend
 ```
+
+### Troubleshooting
+
+**Common Issues:**
+
+1. **"No module named 'backend'" error:**
+   - Always set PYTHONPATH when running Django commands from project root
+   - Use: `PYTHONPATH=$(pwd) python backend/manage.py [command]`
+
+2. **GDAL import errors:**
+   - Ensure GDAL is installed via conda: `conda install -c conda-forge gdal`
+   - Use `from osgeo import gdal` instead of `import gdal`
+
+3. **Database connection issues:**
+   - Ensure PostgreSQL with PostGIS is running: `docker-compose up -d db`
+   - Check database credentials in `backend/settings.py`
+
+4. **Spatial library issues:**
+   - Install from conda-forge channel: `conda install -c conda-forge gdal geos proj`
+   - Verify installation: `python -c "from osgeo import gdal; print(gdal.__version__)"`
 
 ## License
 

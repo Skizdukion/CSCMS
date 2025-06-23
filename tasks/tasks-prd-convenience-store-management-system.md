@@ -65,10 +65,18 @@
 
 - [ ] 1.0 Database Setup and Spatial Models
   - [x] 1.1 Set up PostgreSQL database with PostGIS extension
-  - [x] 1.2 Configure Django settings for GeoDjango and spatial database
-  - [ ] 1.3 Create Store model with spatial fields (PointField for coordinates)
-  - [ ] 1.4 Create Inventory model with store relationship
-  - [ ] 1.5 Create District model for geographic boundaries
+  - [x] 1.2 Create and check backend Python environment server using conda
+    - [x] 1.2.1 Create conda environment with Python 3.9+ and required packages
+    - [x] 1.2.2 Install GeoDjango and spatial dependencies (GDAL, GEOS, PROJ)
+    - [x] 1.2.3 Install Django and Django REST framework
+    - [x] 1.2.4 Install PostgreSQL adapter (psycopg2) and Redis client
+    - [x] 1.2.5 Test Django server startup and basic configuration
+    - [x] 1.2.6 Verify GeoDjango spatial database connectivity
+    - [x] 1.2.7 Create environment activation script for development
+    - [x] 1.2.8 Document environment setup process in README
+  - [x] 1.3 Create Store model with spatial fields (PointField for coordinates)
+  - [x] 1.4 Create Inventory model with store relationship
+  - [x] 1.5 Create District model for geographic boundaries
   - [ ] 1.6 Add spatial indexes to models for performance optimization
   - [ ] 1.7 Create and run database migrations
   - [ ] 1.8 Write unit tests for models and spatial field validation
