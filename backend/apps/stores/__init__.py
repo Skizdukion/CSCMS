@@ -1,0 +1,1 @@
+# Stores app for convenience store management 
