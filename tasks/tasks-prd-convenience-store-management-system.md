@@ -42,16 +42,17 @@
 - `frontend/src/App.tsx` - Main React application with routing setup
 - `frontend/src/components/Layout/Layout.tsx` - Main layout component with sidebar navigation
 - `frontend/src/components/Layout/Layout.css` - Styles for the layout component
-- `frontend/src/pages/Dashboard.tsx` - Dashboard page with overview cards and quick actions
-- `frontend/src/pages/Dashboard.css` - Styles for the dashboard page
+- `frontend/src/pages/Dashboard.tsx` - Dashboard page with live API data, overview cards, quick actions, and integrated map modal with store markers
+- `frontend/src/pages/Dashboard.css` - Styles for the dashboard page including modal, loading states, and map legend
 - `frontend/src/pages/Stores.tsx` - Stores management page with store cards and filters
 - `frontend/src/pages/Stores.css` - Styles for the stores page
 - `frontend/src/pages/Inventory.tsx` - Inventory management page with table view
 - `frontend/src/pages/Inventory.css` - Styles for the inventory page
 - `frontend/src/pages/Reports.tsx` - Reports and analytics page with charts and metrics
 - `frontend/src/pages/Reports.css` - Styles for the reports page
-- `frontend/src/components/Map/StoreMap.jsx` - Interactive map component with Leaflet.js
-- `frontend/src/components/Map/StoreMap.jsx` - Unit tests for map component
+- `frontend/src/components/Map/StoreMap.jsx` - Interactive map component with Leaflet.js, multiple tile layers, enhanced store markers with visual status indicators, rich popup information, and advanced controls
+- `frontend/src/components/Map/StoreMap.css` - CSS styles for the map component including enhanced popup styling, marker status indicators, and advanced control styling
+- `frontend/src/components/Map/StoreMap.test.jsx` - Comprehensive unit tests for map component including enhanced popup functionality (17 test cases)
 - `frontend/src/components/Store/StoreForm.tsx` - Form component for adding/editing stores
 - `frontend/src/components/Store/StoreForm.css` - Styles for the store form component
 - `frontend/src/types/index.ts` - TypeScript interfaces for Store, District, and form data
@@ -120,10 +121,10 @@
   - [x] 2.11 Seed data with Ho Chi Minh City convenience stores and districts
   - [x] 2.12 Comprehensive unit test with database test
 
-- [ ] 3.0 Frontend User Interface
+- [x] 3.0 Frontend User Interface
   - [x] 3.1 Set up React application with routing and state management
   - [x] 3.2 Create main navigation and layout components
-  - [ ] 3.3 Complete store management page (with API communication)
+  - [x] 3.3 Complete store management page (with API communication)
     - [x] 3.3.1 Add new store and edit store feature (create and edit form, form validation, api submitting)
     - [x] 3.3.2 Search store feature (search by name, advanced option for filter district, available inventory, store type, is active, sort by near a picked location)
   - [ ] 3.4 Complete item management page (with API communication)
@@ -132,30 +133,16 @@
     - [x] 3.4.3 Remove quantity, price, and minimum stock level fields from backend and frontend
     - [x] 3.4.4 Create ItemEditForm component for editing item name and status only
     - [x] 3.4.5 Create ItemStoreForm component for managing which stores have an item
-    - [ ] 3.4.6 Update inventory table to search items only (not stores), activate/deactivate items, and manage store associations
-    - [ ] 3.4.7 Fix search box layout to be fully horizontal/flex
-    - [ ] 3.4.8 Update inventory data structure to match new simplified model
 
 - [ ] 4.0 Map Integration and Spatial Features
-  - [ ] 4.1 Set up Leaflet.js map component with OpenStreetMap tiles
-  - [ ] 4.2 Implement store markers with popup information
-  - [ ] 4.3 Add district boundary visualization
-  - [ ] 4.4 Create radius search visualization on map
-  - [ ] 4.5 Implement store clustering for better performance
-  - [ ] 4.6 Add map controls for zoom, pan, and layer toggling
-  - [ ] 4.7 Create spatial search interface (radius, district selection)
-  - [ ] 4.8 Implement distance calculation display between stores
-  - [ ] 4.9 Add route planning visualization between selected stores
-  - [ ] 4.10 Write unit tests for map components and spatial features
+  - [x] 4.1 Set up Leaflet.js map component with OpenStreetMap tiles
+  - [x] 4.2 Add map controls for zoom, pan, and layer toggling
+  - [x] 4.3 Implement store markers with popup information from api (using in dashboard view map button)
+  - [x] 4.4 Using picking location in Add or Edit store form (location details, allow pick location -> auto extract long and lat, or mannualy set long and lat by number, not allow to select district, this need to be auto mapping from location)
 
-- [ ] 5.0 Reporting and Analytics System
-  - [ ] 5.1 Create StatisticsReport component for data visualization
-  - [ ] 5.2 Implement store count by district chart
-  - [ ] 5.3 Add inventory status by location reports
-  - [ ] 5.4 Create spatial coverage analysis visualization
-  - [ ] 5.5 Implement performance comparison charts across districts
-  - [ ] 5.6 Add export functionality (PDF, CSV, Excel)
-  - [ ] 5.7 Create dashboard with key metrics overview
-  - [ ] 5.8 Implement real-time data updates for reports
-  - [ ] 5.9 Add report filtering and date range selection
-  - [ ] 5.10 Write unit tests for reporting components and export functions 
+- [x] 5.0 Final touch
+  - [x] 5.1 Fix search box to be strech horizontal
+  - [x] 5.2 Allow to view all inventory in a store by Inventory button in store card
+  - [x] 5.3 Remove inventory summary and reports & analytic page & main header
+
+- [ ] 6.0 E2E test case with Playwright

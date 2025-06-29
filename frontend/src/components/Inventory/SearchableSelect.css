@@ -1,6 +1,7 @@
 .searchable-select {
   position: relative;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .searchable-select-label {
@@ -32,11 +33,12 @@
 
 .searchable-select-input-wrapper {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   border: 1px solid #ddd;
   border-radius: 6px;
   background-color: white;
   transition: border-color 0.2s ease;
+  width: 100%;
 }
 
 .searchable-select-input-wrapper:focus-within {
@@ -59,6 +61,8 @@
   outline: none;
   font-size: 14px;
   background: transparent;
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .searchable-select-input::placeholder {
@@ -74,6 +78,7 @@
   align-items: center;
   padding-right: 8px;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .clear-button {

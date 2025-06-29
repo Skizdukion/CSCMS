@@ -422,4 +422,27 @@ class DistrictStatisticsSerializer(serializers.Serializer):
     districts_by_type = serializers.DictField()
     total_population = serializers.IntegerField()
     average_area = serializers.FloatField()
-    average_income = serializers.FloatField() 
+    average_income = serializers.FloatField()
+
+
+class StoreLocationSerializer(serializers.ModelSerializer):
+    """Simplified serializer for store location data only (for map display)."""
+    
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Store
+        fields = [
+            'id', 'name', 'address', 'district', 'is_active',
+            'store_type', 'rating', 'phone', 'email', 'opening_hours',
+            'latitude', 'longitude'
+        ]
+    
+    def get_latitude(self, obj):
+        """Return latitude coordinate."""
+        return obj.latitude
+    
+    def get_longitude(self, obj):
+        """Return longitude coordinate."""
+        return obj.longitude 

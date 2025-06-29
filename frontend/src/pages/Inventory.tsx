@@ -273,21 +273,7 @@ const InventoryPage: React.FC = () => {
   };
 
   // Calculate summary statistics
-  const getSummaryStats = () => {
-    const totalItems = inventoryItems.length;
-    const availableItems = inventoryItems.filter(item => item.is_available).length;
-    const unavailableItems = inventoryItems.filter(item => !item.is_available).length;
-    const categoriesCount = new Set(inventoryItems.map(item => item.item_category)).size;
 
-    return {
-      totalItems,
-      availableItems,
-      unavailableItems,
-      categoriesCount,
-    };
-  };
-
-  const stats = getSummaryStats();
 
   return (
     <div className="inventory-page">
@@ -447,24 +433,7 @@ const InventoryPage: React.FC = () => {
         )}
       </div>
 
-      <div className="inventory-summary">
-        <div className="summary-card">
-          <h3>Total Items</h3>
-          <div className="summary-value">{totalCount}</div>
-        </div>
-        <div className="summary-card">
-          <h3>Available</h3>
-          <div className="summary-value">{stats.availableItems}</div>
-        </div>
-        <div className="summary-card">
-          <h3>Unavailable</h3>
-          <div className="summary-value danger">{stats.unavailableItems}</div>
-        </div>
-        <div className="summary-card">
-          <h3>Categories</h3>
-          <div className="summary-value">{stats.categoriesCount}</div>
-        </div>
-      </div>
+
 
       {/* Inventory Form Modal */}
       {showForm && (

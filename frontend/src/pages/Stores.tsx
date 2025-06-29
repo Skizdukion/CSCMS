@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Store, District, StoreFormData, StoreSearchFilters, UserLocation } from '../types';
 import { storeApi, districtApi, getAvailableItems } from '../services/api';
 import StoreForm from '../components/Store/StoreForm';
+import StoreInventoryModal from '../components/Store/StoreInventoryModal';
 import './Stores.css';
 
 const Stores: React.FC = () => {
@@ -19,6 +20,10 @@ const Stores: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingStore, setEditingStore] = useState<Store | undefined>(undefined);
   const [formLoading, setFormLoading] = useState(false);
+
+  // State for inventory modal
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
+  const [selectedStoreForInventory, setSelectedStoreForInventory] = useState<Store | null>(null);
 
   // State for districts and inventory items
   const [districts, setDistricts] = useState<District[]>([]);
@@ -263,6 +268,16 @@ const Stores: React.FC = () => {
   const handleEditStore = (store: Store) => {
     setEditingStore(store);
     setShowForm(true);
+  };
+
+  const handleViewInventory = (store: Store) => {
+    setSelectedStoreForInventory(store);
+    setShowInventoryModal(true);
+  };
+
+  const handleCloseInventoryModal = () => {
+    setShowInventoryModal(false);
+    setSelectedStoreForInventory(null);
   };
 
   const handleFormSubmit = async (formData: StoreFormData) => {
@@ -555,8 +570,9 @@ const Stores: React.FC = () => {
                     <button className="action-btn edit" onClick={() => handleEditStore(store)}>
                       ✏️ Edit
                     </button>
-                    <button className="action-btn view">👁️ View</button>
-                    <button className="action-btn inventory">📦 Inventory</button>
+                    <button className="action-btn inventory" onClick={() => handleViewInventory(store)}>
+                      📦 Inventory
+                    </button>
                   </div>
                 </div>
               );
@@ -642,6 +658,14 @@ const Stores: React.FC = () => {
             />
           </div>
         </div>
+      )}
+
+      {/* Store Inventory Modal */}
+      {showInventoryModal && selectedStoreForInventory && (
+        <StoreInventoryModal
+          store={selectedStoreForInventory}
+          onClose={handleCloseInventoryModal}
+        />
       )}
     </div>
   );

@@ -9,29 +9,16 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: '📊', description: 'Overview and analytics' },
     { path: '/stores', label: 'Stores', icon: '🏪', description: 'Store management' },
     { path: '/items', label: 'Items', icon: '🛒', description: 'Product catalog' },
     { path: '/inventory', label: 'Inventory', icon: '📦', description: 'Stock management' },
-    { path: '/reports', label: 'Reports', icon: '📈', description: 'Reports and analytics' },
   ];
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implement search functionality here
-    console.log('Search query:', searchQuery);
-  };
-
-  const getCurrentPageInfo = () => {
-    const currentItem = navItems.find(item => item.path === location.pathname);
-    return currentItem || { label: 'Dashboard', description: 'Overview and analytics' };
   };
 
   return (
@@ -93,46 +80,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </aside>
 
       <main className="main-content">
-        <header className="main-header">
-          <div className="header-left">
-            <button 
-              className="mobile-menu-toggle"
-              onClick={handleMobileMenuToggle}
-              aria-label="Open navigation menu"
-            >
-              ☰
-            </button>
-            <div className="page-info">
-              <h2 className="page-title">{getCurrentPageInfo().label}</h2>
-              <p className="page-description">{getCurrentPageInfo().description}</p>
-            </div>
-          </div>
-          
-          <div className="header-right">
-            <form className="search-form" onSubmit={handleSearchSubmit}>
-              <input
-                type="text"
-                placeholder="Search stores, inventory..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input"
-                aria-label="Search"
-              />
-              <button type="submit" className="search-button" aria-label="Submit search">
-                🔍
-              </button>
-            </form>
-            
-            <div className="header-actions">
-              <button className="header-action-btn" aria-label="Notifications">
-                🔔
-              </button>
-              <button className="header-action-btn" aria-label="Settings">
-                ⚙️
-              </button>
-            </div>
-          </div>
-        </header>
+        <button 
+          className="mobile-menu-toggle"
+          onClick={handleMobileMenuToggle}
+          aria-label="Open navigation menu"
+        >
+          ☰
+        </button>
         
         <div className="content">
           {children}

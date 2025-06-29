@@ -8,6 +8,8 @@ export interface Store {
     latitude: number;
     longitude: number;
   };
+  latitude?: number;
+  longitude?: number;
   store_type: 'convenience' | 'gas_station' | 'supermarket' | 'pharmacy' | 'other';
   district?: string;
   district_obj?: number;

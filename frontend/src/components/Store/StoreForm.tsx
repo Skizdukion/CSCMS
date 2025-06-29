@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Store, StoreFormData, District } from '../../types';
+import LocationPicker from '../Map/LocationPicker';
 import './StoreForm.css';
 
 interface StoreFormProps {
@@ -8,6 +9,13 @@ interface StoreFormProps {
   onCancel: () => void;
   districts?: District[];
   isLoading?: boolean;
+}
+
+interface LocationDetails {
+  address: string;
+  district: string;
+  city: string;
+  country: string;
 }
 
 const StoreForm: React.FC<StoreFormProps> = ({
@@ -33,17 +41,22 @@ const StoreForm: React.FC<StoreFormProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [locationDetails, setLocationDetails] = useState<LocationDetails | null>(null);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
   // Populate form when editing existing store
   useEffect(() => {
     if (store) {
+      const lat = store.latitude || store.location?.latitude;
+      const lng = store.longitude || store.location?.longitude;
+      
       setFormData({
         name: store.name || '',
         address: store.address || '',
         phone: store.phone || '',
         email: store.email || '',
-        latitude: store.location?.latitude?.toString() || '',
-        longitude: store.location?.longitude?.toString() || '',
+        latitude: lat?.toString() || '',
+        longitude: lng?.toString() || '',
         store_type: store.store_type || 'convenience',
         district: store.district || '',
         city: store.city || 'Ho Chi Minh City',
@@ -51,6 +64,11 @@ const StoreForm: React.FC<StoreFormProps> = ({
         is_active: store.is_active ?? true,
         rating: store.rating?.toString() || ''
       });
+
+      // Show location picker if we have coordinates
+      if (lat && lng) {
+        setShowLocationPicker(true);
+      }
     }
   }, [store]);
 
@@ -91,6 +109,25 @@ const StoreForm: React.FC<StoreFormProps> = ({
       newErrors.address = 'Address is required';
     }
 
+    // Coordinate validation - now required
+    if (!formData.latitude) {
+      newErrors.latitude = 'Latitude is required';
+    } else {
+      const lat = parseFloat(formData.latitude);
+      if (isNaN(lat) || lat < -90 || lat > 90) {
+        newErrors.latitude = 'Latitude must be between -90 and 90';
+      }
+    }
+
+    if (!formData.longitude) {
+      newErrors.longitude = 'Longitude is required';
+    } else {
+      const lng = parseFloat(formData.longitude);
+      if (isNaN(lng) || lng < -180 || lng > 180) {
+        newErrors.longitude = 'Longitude must be between -180 and 180';
+      }
+    }
+
     // Email validation
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
@@ -99,21 +136,6 @@ const StoreForm: React.FC<StoreFormProps> = ({
     // Phone validation (Vietnamese phone number format)
     if (formData.phone && !/^(\+84|84|0)[1-9][0-9]{8,9}$/.test(formData.phone.replace(/\s/g, ''))) {
       newErrors.phone = 'Please enter a valid Vietnamese phone number';
-    }
-
-    // Coordinate validation
-    if (formData.latitude) {
-      const lat = parseFloat(formData.latitude);
-      if (isNaN(lat) || lat < -90 || lat > 90) {
-        newErrors.latitude = 'Latitude must be between -90 and 90';
-      }
-    }
-
-    if (formData.longitude) {
-      const lng = parseFloat(formData.longitude);
-      if (isNaN(lng) || lng < -180 || lng > 180) {
-        newErrors.longitude = 'Longitude must be between -180 and 180';
-      }
     }
 
     // Rating validation
@@ -127,6 +149,43 @@ const StoreForm: React.FC<StoreFormProps> = ({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Handle location change from map picker
+  const handleLocationChange = useCallback((lat: number, lng: number) => {
+    setFormData(prev => ({
+      ...prev,
+      latitude: lat.toString(),
+      longitude: lng.toString()
+    }));
+
+    // Clear location-related errors
+    if (errors.latitude || errors.longitude) {
+      setErrors(prev => ({
+        ...prev,
+        latitude: '',
+        longitude: ''
+      }));
+    }
+  }, [errors.latitude, errors.longitude]);
+
+  // Handle location details from reverse geocoding
+  const handleLocationDetails = useCallback((details: LocationDetails) => {
+    setLocationDetails(details);
+    
+    // Auto-update district and address if available
+    setFormData(prev => ({
+      ...prev,
+      district: details.district || prev.district,
+      city: details.city || prev.city,
+      // Only update address if it's empty to avoid overwriting user input
+      address: prev.address || details.address
+    }));
+  }, []);
+
+  // Toggle location picker visibility
+  const handleToggleLocationPicker = useCallback(() => {
+    setShowLocationPicker(prev => !prev);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,9 +273,33 @@ const StoreForm: React.FC<StoreFormProps> = ({
         <div className="form-section">
           <h3>Location Details</h3>
           
+          <div className="location-picker-toggle">
+            <button
+              type="button"
+              className={`btn-toggle-map ${showLocationPicker ? 'active' : ''}`}
+              onClick={handleToggleLocationPicker}
+            >
+              {showLocationPicker ? '📍 Hide Map' : '🗺️ Pick Location on Map'}
+            </button>
+            <span className="toggle-hint">
+              {showLocationPicker ? 'Click on map to set location' : 'Use map to pick precise coordinates'}
+            </span>
+          </div>
+
+          {showLocationPicker && (
+            <LocationPicker
+              latitude={formData.latitude ? parseFloat(formData.latitude) : undefined}
+              longitude={formData.longitude ? parseFloat(formData.longitude) : undefined}
+              onLocationChange={handleLocationChange}
+              onLocationDetails={handleLocationDetails}
+              height="350px"
+              zoom={15}
+            />
+          )}
+
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="latitude">Latitude</label>
+              <label htmlFor="latitude">Latitude *</label>
               <input
                 type="number"
                 id="latitude"
@@ -226,12 +309,13 @@ const StoreForm: React.FC<StoreFormProps> = ({
                 className={errors.latitude ? 'error' : ''}
                 placeholder="10.762622"
                 step="any"
+                required
               />
               {errors.latitude && <span className="error-message">{errors.latitude}</span>}
             </div>
 
             <div className="form-group">
-              <label htmlFor="longitude">Longitude</label>
+              <label htmlFor="longitude">Longitude *</label>
               <input
                 type="number"
                 id="longitude"
@@ -241,6 +325,7 @@ const StoreForm: React.FC<StoreFormProps> = ({
                 className={errors.longitude ? 'error' : ''}
                 placeholder="106.660172"
                 step="any"
+                required
               />
               {errors.longitude && <span className="error-message">{errors.longitude}</span>}
             </div>
@@ -248,20 +333,16 @@ const StoreForm: React.FC<StoreFormProps> = ({
 
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="district">District</label>
-              <select
+              <label htmlFor="district">District {locationDetails && <span className="auto-detected">(Auto-detected)</span>}</label>
+              <input
+                type="text"
                 id="district"
                 name="district"
                 value={formData.district}
-                onChange={handleInputChange}
-              >
-                <option value="">Select District</option>
-                {Array.isArray(districts) && districts.map(district => (
-                  <option key={district.id} value={district.name}>
-                    {district.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Will be auto-detected from coordinates"
+                className={locationDetails ? 'auto-filled' : ''}
+                readOnly
+              />
             </div>
 
             <div className="form-group">
@@ -271,11 +352,31 @@ const StoreForm: React.FC<StoreFormProps> = ({
                 id="city"
                 name="city"
                 value={formData.city}
-                onChange={handleInputChange}
                 placeholder="Ho Chi Minh City"
+                readOnly
               />
             </div>
           </div>
+
+          {locationDetails && (
+            <div className="location-details">
+              <h4>📍 Detected Location Information</h4>
+              <div className="location-info">
+                <div className="info-item">
+                  <span className="info-label">Address:</span>
+                  <span className="info-value">{locationDetails.address}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">District:</span>
+                  <span className="info-value">{locationDetails.district || 'Not detected'}</span>
+                </div>
+                <div className="info-item">
+                  <span className="info-label">City:</span>
+                  <span className="info-value">{locationDetails.city}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="form-section">

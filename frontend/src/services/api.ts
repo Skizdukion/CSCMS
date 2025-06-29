@@ -189,6 +189,18 @@ export const storeApi = {
     });
   },
 
+  // Get store locations only (for map display)
+  getStoreLocations: async (params?: { 
+    is_active?: boolean; 
+  }): Promise<ApiResponse<Store[]>> => {
+    const queryParams = new URLSearchParams();
+    if (params?.is_active !== undefined) queryParams.append('is_active', params.is_active.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/stores/locations/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<Store[]>(endpoint);
+  },
 
 };
 
@@ -273,6 +285,31 @@ export const districtApi = {
   // Get district by ID
   getDistrict: async (id: number): Promise<ApiResponse<District>> => {
     return apiRequest<District>(`/districts/${id}/`);
+  },
+
+  // Lookup district by coordinates
+  lookupByCoordinates: async (
+    latitude: number, 
+    longitude: number
+  ): Promise<ApiResponse<{
+    district: string;
+    district_id: number | null;
+    district_type: string;
+    city: string;
+    found: boolean;
+  }>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('latitude', latitude.toString());
+    queryParams.append('longitude', longitude.toString());
+    
+    const endpoint = `/districts/lookup-by-coordinates/?${queryParams.toString()}`;
+    return apiRequest<{
+      district: string;
+      district_id: number | null;
+      district_type: string;
+      city: string;
+      found: boolean;
+    }>(endpoint);
   },
 };
 

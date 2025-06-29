@@ -345,4 +345,149 @@
 .form-group input:focus::placeholder,
 .form-group textarea:focus::placeholder {
   opacity: 0.5;
+}
+
+/* Location Picker Styles */
+.location-picker-toggle {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.btn-toggle-map {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 10px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin-bottom: 8px;
+}
+
+.btn-toggle-map:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
+}
+
+.btn-toggle-map.active {
+  background: #48bb78;
+}
+
+.btn-toggle-map.active:hover {
+  background: #38a169;
+}
+
+.toggle-hint {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+}
+
+.form-help {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.auto-detected {
+  font-size: 0.75rem;
+  color: #28a745;
+  font-weight: 500;
+  background: #d4edda;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 5px;
+}
+
+.auto-filled {
+  background: #e8f5e8 !important;
+  border-color: #28a745 !important;
+}
+
+.location-details {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.location-details h4 {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.location-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #555;
+  min-width: 80px;
+  font-size: 0.85rem;
+}
+
+.info-value {
+  flex: 1;
+  color: #333;
+  font-size: 0.85rem;
+  word-break: break-word;
+}
+
+/* Responsive adjustments for location picker */
+@media (max-width: 768px) {
+  .location-picker-toggle {
+    padding: 12px;
+  }
+  
+  .btn-toggle-map {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .location-details {
+    padding: 12px;
+  }
+  
+  .info-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .location-picker-toggle {
+    margin-bottom: 15px;
+    padding: 10px;
+  }
+  
+  .location-details {
+    margin-top: 15px;
+    padding: 10px;
+  }
 } 

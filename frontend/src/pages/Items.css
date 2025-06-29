@@ -67,7 +67,7 @@
   display: flex;
   flex: 1;
   min-width: 300px;
-  max-width: 500px;
+  align-items: stretch;
 }
 
 .search-input {
@@ -79,6 +79,8 @@
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s ease;
+  height: 50px;
+  box-sizing: border-box;
 }
 
 .search-input:focus {
@@ -94,6 +96,11 @@
   cursor: pointer;
   font-size: 1.1rem;
   transition: all 0.2s ease;
+  height: 50px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .search-btn:hover {
@@ -104,6 +111,7 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .filter-select {

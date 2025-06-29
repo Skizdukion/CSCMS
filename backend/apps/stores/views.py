@@ -17,7 +17,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
 from .models import Store, Item, Inventory, District
-from .serializers import StoreSerializer, ItemSerializer, InventorySerializer, DistrictSerializer, StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer
+from .serializers import StoreSerializer, ItemSerializer, InventorySerializer, DistrictSerializer, StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer, StoreLocationSerializer
 
 class StoreViewSet(viewsets.ModelViewSet):
     """
@@ -67,6 +67,25 @@ class StoreViewSet(viewsets.ModelViewSet):
         }
         
         serializer = StoreStatisticsSerializer(stats)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get store locations",
+        description="Get store locations with minimal data for map display",
+        responses={200: StoreLocationSerializer(many=True)}
+    )
+    @action(detail=False, methods=['get'], url_path='locations')
+    def locations(self, request):
+        """Get store locations with minimal data for map display."""
+        queryset = self.get_queryset()
+        
+        # Apply basic filters
+        is_active = request.query_params.get('is_active', '').strip()
+        if is_active:
+            is_active_bool = is_active.lower() in ['true', '1', 'yes']
+            queryset = queryset.filter(is_active=is_active_bool)
+        
+        serializer = StoreLocationSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @extend_schema(
@@ -426,11 +445,13 @@ class InventoryViewSet(viewsets.ModelViewSet):
 
     @extend_schema(
         summary="Search inventory by item",
-        description="Find inventory items by name or category",
+        description="Find inventory items by name, category, or store",
         parameters=[
             OpenApiParameter(name='item_name', type=str, description='Item name to search for'),
             OpenApiParameter(name='category', type=str, description='Item category'),
             OpenApiParameter(name='available_only', type=bool, description='Show only available items'),
+            OpenApiParameter(name='store', type=int, description='Filter by store ID'),
+            OpenApiParameter(name='store_id', type=int, description='Filter by store ID (alias for store)'),
         ]
     )
     @action(detail=False, methods=['get'], url_path='search')
@@ -439,6 +460,7 @@ class InventoryViewSet(viewsets.ModelViewSet):
         item_name = request.query_params.get('item_name')
         category = request.query_params.get('category')
         available_only = request.query_params.get('available_only', 'false').lower() == 'true'
+        store_id = request.query_params.get('store_id') or request.query_params.get('store')
         
         queryset = self.get_queryset()
         
@@ -448,6 +470,12 @@ class InventoryViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(item__category=category)
         if available_only:
             queryset = queryset.filter(is_available=True)
+        if store_id:
+            try:
+                store_id_int = int(store_id)
+                queryset = queryset.filter(store_id=store_id_int)
+            except (ValueError, TypeError):
+                pass  # Invalid store_id, ignore filter
         
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -578,6 +606,97 @@ class DistrictViewSet(viewsets.ModelViewSet):
         
         serializer = DistrictStatisticsSerializer(stats)
         return Response(serializer.data)
+
+    @extend_schema(
+        summary="Lookup district by coordinates",
+        description="Find the district that contains the given latitude and longitude coordinates",
+        parameters=[
+            OpenApiParameter(name='latitude', type=float, required=True, description='Latitude coordinate'),
+            OpenApiParameter(name='longitude', type=float, required=True, description='Longitude coordinate'),
+        ],
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'district': {'type': 'string', 'description': 'District name'},
+                    'district_id': {'type': 'integer', 'description': 'District ID'},
+                    'district_type': {'type': 'string', 'description': 'District type'},
+                    'city': {'type': 'string', 'description': 'City name'},
+                    'found': {'type': 'boolean', 'description': 'Whether a district was found'},
+                }
+            },
+            400: {'description': 'Invalid coordinates provided'}
+        },
+        examples=[
+            OpenApiExample(
+                'Lookup district',
+                value={'latitude': 10.8231, 'longitude': 106.6297},
+                description='Find district containing the coordinates'
+            ),
+        ]
+    )
+    @action(detail=False, methods=['get'], url_path='lookup-by-coordinates')
+    def lookup_by_coordinates(self, request):
+        """Find the district that contains the given coordinates."""
+        try:
+            # Get coordinates from query parameters
+            latitude = request.query_params.get('latitude')
+            longitude = request.query_params.get('longitude')
+            
+            if not latitude or not longitude:
+                return Response(
+                    {'error': 'Both latitude and longitude parameters are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            try:
+                lat = float(latitude)
+                lng = float(longitude)
+            except (ValueError, TypeError):
+                return Response(
+                    {'error': 'Invalid latitude or longitude values'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Validate coordinate ranges
+            if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+                return Response(
+                    {'error': 'Latitude must be between -90 and 90, longitude between -180 and 180'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Create point from coordinates
+            point = Point(lng, lat, srid=4326)
+            
+            # Find district that contains this point using spatial query
+            district = District.objects.filter(
+                boundary__contains=point,
+                is_active=True
+            ).first()
+            
+            if district:
+                return Response({
+                    'district': district.name,
+                    'district_id': district.id,
+                    'district_type': district.district_type,
+                    'city': district.city,
+                    'found': True
+                })
+            else:
+                # No district found, return "Other"
+                return Response({
+                    'district': 'Other',
+                    'district_id': None,
+                    'district_type': 'other',
+                    'city': 'Ho Chi Minh City',
+                    'found': False
+                })
+                
+        except Exception as e:
+            return Response(
+                {'error': f'Error processing coordinates: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class StatisticsView(APIView):
     """Placeholder view for statistics - to be implemented"""

@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard';
 import Stores from './pages/Stores';
 import Items from './pages/Items';
 import Inventory from './pages/Inventory';
-import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -18,7 +17,6 @@ function App() {
             <Route path="/stores" element={<Stores />} />
             <Route path="/items" element={<Items />} />
             <Route path="/inventory" element={<Inventory />} />
-            <Route path="/reports" element={<Reports />} />
           </Routes>
         </Layout>
       </div>
