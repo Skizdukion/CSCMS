@@ -38,6 +38,16 @@ class Command(BaseCommand):
             default=0.75,
             help='Probability that an item is available (0.0-1.0, default: 0.75)',
         )
+        parser.add_argument(
+            '--store-type-bias',
+            action='store_true',
+            help='Apply bias based on store type (larger stores have more items)',
+        )
+        parser.add_argument(
+            '--category-bias',
+            action='store_true',
+            help='Apply category bias (convenience stores prefer certain categories)',
+        )
 
     def handle(self, *args, **options):
         if options['clear']:
@@ -60,12 +70,23 @@ class Command(BaseCommand):
         min_items = options.get('min_items', 15)
         max_items = options.get('max_items', 35)
         availability_rate = options.get('availability_rate', 0.75)
+        store_type_bias = options.get('store_type_bias', False)
+        category_bias = options.get('category_bias', False)
         
         self.stdout.write(f'📋 Seeding inventory for {stores.count()} stores with {items.count()} products...')
         self.stdout.write(f'   Items per store: {min_items}-{max_items}')
         self.stdout.write(f'   Availability rate: {availability_rate*100:.0f}%')
+        if store_type_bias:
+            self.stdout.write('   Store type bias: ENABLED')
+        if category_bias:
+            self.stdout.write('   Category bias: ENABLED')
         
-        inventory_count = self.seed_inventory(stores, items, min_items, max_items, availability_rate)
+        if store_type_bias or category_bias:
+            inventory_count = self.seed_inventory_with_bias(
+                stores, items, min_items, max_items, availability_rate, store_type_bias, category_bias
+            )
+        else:
+            inventory_count = self.seed_inventory(stores, items, min_items, max_items, availability_rate)
         
         self.stdout.write(
             self.style.SUCCESS(f'✅ Successfully seeded {inventory_count} inventory relationships')
@@ -110,18 +131,7 @@ class Command(BaseCommand):
         
         return inventory_count
 
-    def add_arguments(self, parser):
-        super().add_arguments(parser)
-        parser.add_argument(
-            '--store-type-bias',
-            action='store_true',
-            help='Apply bias based on store type (larger stores have more items)',
-        )
-        parser.add_argument(
-            '--category-bias',
-            action='store_true',
-            help='Apply category bias (convenience stores prefer certain categories)',
-        )
+
 
     def seed_inventory_with_bias(self, stores, items, min_items, max_items, availability_rate, store_type_bias=False, category_bias=False):
         """Create inventory relationships with realistic bias based on store type and item categories."""

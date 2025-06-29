@@ -332,7 +332,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   border: 1px solid #e0e0e0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  height: 240px;
+  height: 320px;
   display: flex;
   flex-direction: column;
 }
