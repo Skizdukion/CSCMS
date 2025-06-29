@@ -6,12 +6,13 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from backend.apps.stores.views import DistrictViewSet, StoreViewSet, InventoryViewSet
+from backend.apps.stores.views import DistrictViewSet, StoreViewSet, ItemViewSet, InventoryViewSet
 
 # Create a router and register our viewsets with it
 router = DefaultRouter()
 router.register(r'districts', DistrictViewSet)
 router.register(r'stores', StoreViewSet)
+router.register(r'items', ItemViewSet)
 router.register(r'inventory', InventoryViewSet)
 
 app_name = 'stores'
@@ -24,7 +25,4 @@ urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('docs/', SpectacularSwaggerView.as_view(url_name='stores:schema'), name='swagger-ui'),
     path('redoc/', SpectacularRedocView.as_view(url_name='stores:schema'), name='redoc'),
-    
-    # Include DRF authentication URLs
-    path('api-auth/', include('rest_framework.urls')),
 ] 

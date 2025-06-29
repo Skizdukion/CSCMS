@@ -192,6 +192,77 @@ export const storeApi = {
 
 };
 
+// Item API functions
+export const itemApi = {
+  // Get all items
+  getItems: async (params: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<ApiResponse<{ results: any[]; count: number; next: string | null; previous: string | null }>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/items/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<{ results: any[]; count: number; next: string | null; previous: string | null }>(endpoint);
+  },
+
+  // Get single item by ID
+  getItem: async (id: number): Promise<ApiResponse<any>> => {
+    return apiRequest<any>(`/items/${id}/`);
+  },
+
+  // Create new item
+  createItem: async (itemData: any): Promise<ApiResponse<any>> => {
+    return apiRequest<any>('/items/', {
+      method: 'POST',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  // Update existing item
+  updateItem: async (id: number, itemData: any): Promise<ApiResponse<any>> => {
+    return apiRequest<any>(`/items/${id}/`, {
+      method: 'PUT',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  // Delete item
+  deleteItem: async (id: number): Promise<ApiResponse<null>> => {
+    return apiRequest<null>(`/items/${id}/`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Search items
+  searchItems: async (params: {
+    name?: string;
+    category?: string;
+    brand?: string;
+    available_only?: boolean;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{ results: any[]; count: number; next: string | null; previous: string | null }>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.name) queryParams.append('name', params.name);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.brand) queryParams.append('brand', params.brand);
+    if (params.available_only !== undefined) queryParams.append('available_only', params.available_only.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/items/search/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<{ results: any[]; count: number; next: string | null; previous: string | null }>(endpoint);
+  },
+};
+
 // District API functions
 export const districtApi = {
   // Get all districts
@@ -207,6 +278,50 @@ export const districtApi = {
 
 // Inventory API functions
 export const inventoryApi = {
+  // Get all inventory items
+  getInventory: async (params: {
+    page?: number;
+    limit?: number;
+  } = {}): Promise<ApiResponse<{ results: any[]; count: number; next: string | null; previous: string | null }>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/inventory/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<{ results: any[]; count: number; next: string | null; previous: string | null }>(endpoint);
+  },
+
+  // Get single inventory item by ID
+  getInventoryItem: async (id: number): Promise<ApiResponse<any>> => {
+    return apiRequest<any>(`/inventory/${id}/`);
+  },
+
+  // Create new inventory item
+  createInventoryItem: async (itemData: any): Promise<ApiResponse<any>> => {
+    return apiRequest<any>('/inventory/', {
+      method: 'POST',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  // Update existing inventory item
+  updateInventoryItem: async (id: number, itemData: any): Promise<ApiResponse<any>> => {
+    return apiRequest<any>(`/inventory/${id}/`, {
+      method: 'PUT',
+      body: JSON.stringify(itemData),
+    });
+  },
+
+  // Delete inventory item
+  deleteInventoryItem: async (id: number): Promise<ApiResponse<null>> => {
+    return apiRequest<null>(`/inventory/${id}/`, {
+      method: 'DELETE',
+    });
+  },
+
   // Search inventory items
   searchInventory: async (params: {
     item_name?: string;
@@ -266,5 +381,6 @@ export const inventoryApi = {
 
 // Export individual functions for convenience
 export const { getStores, getStore, createStore, updateStore, deleteStore, searchStores } = storeApi;
+export const { getItems, getItem, createItem, updateItem, deleteItem, searchItems } = itemApi;
 export const { getDistricts, getDistrict } = districtApi;
-export const { searchInventory, searchNearbyInventory, getAvailableItems } = inventoryApi; 
+export const { getInventory, getInventoryItem, createInventoryItem, updateInventoryItem, deleteInventoryItem, searchInventory, searchNearbyInventory, getAvailableItems } = inventoryApi; 

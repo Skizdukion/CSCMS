@@ -221,34 +221,10 @@ class Store(models.Model):
             return self.location.distance(other_point) * 111320   # Convert degrees to meters
         return None
 
-class Inventory(models.Model):
-    """Inventory model for store items"""
-    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='inventories')
-    item_name = models.CharField(max_length=255, help_text="Name of the inventory item")
-    quantity = models.IntegerField(
-        validators=[MinValueValidator(0)],
-        help_text="Current quantity in stock"
-    )
-    unit = models.CharField(
-        max_length=20,
-        choices=[
-            ('pieces', 'Pieces'),
-            ('kg', 'Kilograms'),
-            ('liters', 'Liters'),
-            ('boxes', 'Boxes'),
-            ('packs', 'Packs'),
-            ('other', 'Other')
-        ],
-        default='pieces',
-        help_text="Unit of measurement"
-    )
-    price = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
-        blank=True, 
-        null=True, 
-        help_text="Price per unit"
-    )
+class Item(models.Model):
+    """Item model for products that can be stocked in stores"""
+    name = models.CharField(max_length=255, unique=True, help_text="Name of the item")
+    description = models.TextField(blank=True, null=True, help_text="Item description")
     category = models.CharField(
         max_length=50,
         choices=[
@@ -263,23 +239,69 @@ class Inventory(models.Model):
         default='other',
         help_text="Item category"
     )
+    brand = models.CharField(max_length=100, blank=True, null=True, help_text="Brand name")
+    barcode = models.CharField(max_length=50, blank=True, null=True, unique=True, help_text="Product barcode")
+    is_active = models.BooleanField(default=True, help_text="Whether the item is active in the system")  # type: ignore[assignment]
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    # Many-to-many relationship with stores through Inventory
+    stores = models.ManyToManyField(Store, through='Inventory', related_name='items')
+    
+    class Meta:
+        db_table = 'stores_item'
+        verbose_name = 'Item'
+        verbose_name_plural = 'Items'
+        ordering = ['category', 'name']
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['category']),
+            models.Index(fields=['is_active']),
+            models.Index(fields=['category', 'is_active']),
+            models.Index(fields=['brand', 'category']),
+        ]
+    
+    def __str__(self):
+        return self.name
+    
+    def get_store_count(self):
+        """Get the number of stores that stock this item"""
+        return self.stores.count()
+    
+    def get_available_stores(self):
+        """Get stores where this item is currently available"""
+        return self.stores.filter(inventories__is_available=True)
+
+
+class Inventory(models.Model):
+    """Inventory model - relationship between items and stores with availability info"""
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='inventories')
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='inventories')
     is_available = models.BooleanField(default=True, help_text="Whether the item is available for sale")  # type: ignore[assignment]
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'stores_inventory'
-        verbose_name = 'Inventory Item'
-        verbose_name_plural = 'Inventory Items'
-        ordering = ['store', 'category', 'item_name']
+        verbose_name = 'Inventory Entry'
+        verbose_name_plural = 'Inventory Entries' 
+        unique_together = [['store', 'item']]  # One inventory entry per item per store
+        ordering = ['store', 'item__category', 'item__name']
         indexes = [
-            models.Index(fields=['store', 'category']),
+            models.Index(fields=['store', 'item']),
             models.Index(fields=['is_available']),
-            models.Index(fields=['category', 'is_available']),
+            models.Index(fields=['item', 'is_available']),
             models.Index(fields=['store', 'is_available']),
-            models.Index(fields=['category', 'unit']),
-            models.Index(fields=['store', 'category', 'is_available']),
+            models.Index(fields=['store', 'item', 'is_available']),
         ]
     
     def __str__(self):
-        return f"{self.item_name} ({self.quantity} {self.unit}) at {self.store.name}" 
+        return f"{self.item.name} at {self.store.name}"
+    
+    @property
+    def stock_status(self):
+        """Get stock status description"""
+        if not self.is_available:
+            return 'unavailable'
+        else:
+            return 'available' 

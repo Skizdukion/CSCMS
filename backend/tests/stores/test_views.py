@@ -8,9 +8,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 from decimal import Decimal
-from django.contrib.auth.models import User
 
-from backend.apps.stores.models import District, Store, Inventory
+from backend.apps.stores.models import District, Store, Inventory, Item
 
 
 class DistrictViewSetTest(APITestCase):
@@ -18,10 +17,6 @@ class DistrictViewSetTest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
-        # Create a test user for authentication
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.force_authenticate(user=self.user)
-        
         self.district = District.objects.create(
             name='Test District',
             code='TD',
@@ -101,10 +96,6 @@ class StoreViewSetTest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
-        # Create a test user for authentication
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.force_authenticate(user=self.user)
-        
         self.district = District.objects.create(
             name='Test District',
             code='TD',
@@ -210,15 +201,71 @@ class StoreViewSetTest(APITestCase):
         self.assertEqual(len(response.data['results']), 0)  # No inventory items yet
 
 
+class ItemViewSetTest(APITestCase):
+    """Test cases for ItemViewSet."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.item = Item.objects.create(
+            name='Test Product',
+            description='A test product',
+            category='beverages',
+            brand='Test Brand',
+            unit='piece',
+            is_active=True
+        )
+        
+        self.list_url = reverse('stores:item-list')
+        self.detail_url = reverse('stores:item-detail', args=[self.item.id])
+    
+    def test_list_items(self):
+        """Test listing items."""
+        response = self.client.get(self.list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['name'], 'Test Product')
+    
+    def test_retrieve_item(self):
+        """Test retrieving a single item."""
+        response = self.client.get(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Test Product')
+        self.assertEqual(response.data['category'], 'beverages')
+    
+    def test_create_item(self):
+        """Test creating a new item."""
+        data = {
+            'name': 'New Product',
+            'description': 'A new test product',
+            'category': 'snacks',
+            'brand': 'New Brand',
+            'unit': 'pack',
+            'is_active': True
+        }
+        response = self.client.post(self.list_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Item.objects.count(), 2)
+        self.assertEqual(response.data['name'], 'New Product')
+    
+    def test_update_item(self):
+        """Test updating an item."""
+        data = {'name': 'Updated Product'}
+        response = self.client.patch(self.detail_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Updated Product')
+    
+    def test_delete_item(self):
+        """Test deleting an item."""
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Item.objects.count(), 0)
+
+
 class InventoryViewSetTest(APITestCase):
     """Test cases for InventoryViewSet."""
     
     def setUp(self):
         """Set up test data."""
-        # Create a test user for authentication
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.force_authenticate(user=self.user)
-        
         self.district = District.objects.create(
             name='Test District',
             code='TD',
@@ -234,13 +281,18 @@ class InventoryViewSetTest(APITestCase):
             location=Point(106.7, 10.8, srid=4326)
         )
         
+        self.item = Item.objects.create(
+            name='Test Product',
+            description='A test product',
+            category='beverages',
+            brand='Test Brand',
+            unit='piece',
+            is_active=True
+        )
+        
         self.inventory = Inventory.objects.create(
             store=self.store,
-            item_name='Test Product',
-            quantity=100,
-            unit='pieces',
-            price=Decimal('15000'),
-            category='beverages',
+            item=self.item,
             is_available=True
         )
         
@@ -259,17 +311,23 @@ class InventoryViewSetTest(APITestCase):
         response = self.client.get(self.detail_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['item_name'], 'Test Product')
-        self.assertEqual(response.data['quantity'], 100)
+        self.assertTrue(response.data['is_available'])
     
     def test_create_inventory(self):
         """Test creating a new inventory item."""
+        # Create another item for testing
+        new_item = Item.objects.create(
+            name='New Product',
+            description='A new test product',
+            category='snacks',
+            brand='New Brand',
+            unit='pack',
+            is_active=True
+        )
+        
         data = {
             'store_id': self.store.id,
-            'item_name': 'New Product',
-            'quantity': 50,
-            'unit': 'pieces',
-            'price': '20000',
-            'category': 'snacks',
+            'item_id': new_item.id,
             'is_available': True
         }
         response = self.client.post(self.list_url, data, format='json')
@@ -279,10 +337,10 @@ class InventoryViewSetTest(APITestCase):
     
     def test_update_inventory(self):
         """Test updating an inventory item."""
-        data = {'quantity': 150}
+        data = {'is_available': False}
         response = self.client.patch(self.detail_url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['quantity'], 150)
+        self.assertFalse(response.data['is_available'])
     
     def test_delete_inventory(self):
         """Test deleting an inventory item."""
@@ -396,9 +454,7 @@ class APIErrorHandlingTest(APITestCase):
     
     def setUp(self):
         """Set up test data."""
-        # Create a test user for authentication
-        self.user = User.objects.create_user(username='testuser', password='testpass')
-        self.client.force_authenticate(user=self.user)
+        pass
     
     def test_invalid_spatial_search(self):
         """Test invalid spatial search parameters."""

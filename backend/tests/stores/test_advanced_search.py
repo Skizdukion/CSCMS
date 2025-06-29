@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from decimal import Decimal
 
-from backend.apps.stores.models import Store, District, Inventory
+from backend.apps.stores.models import Store, District, Inventory, Item
 
 
 class AdvancedStoreSearchTest(APITestCase):
@@ -95,55 +95,91 @@ class AdvancedStoreSearchTest(APITestCase):
             rating=Decimal('3.0')
         )
         
-        # Create test inventory items
+        # Create test items first
+        self.item1 = Item.objects.create(
+            name="Coca Cola",
+            category="beverages",
+            unit="pieces",
+            brand="Coca Cola",
+            is_active=True
+        )
+        
+        self.item2 = Item.objects.create(
+            name="Instant Noodles",
+            category="snacks", 
+            unit="packs",
+            brand="Generic",
+            is_active=True
+        )
+        
+        self.item3 = Item.objects.create(
+            name="Mineral Water", 
+            category="beverages",
+            unit="bottles",
+            brand="Generic",
+            is_active=True
+        )
+        
+        self.item4 = Item.objects.create(
+            name="Pain Relief Medicine",
+            category="personal_care",
+            unit="boxes", 
+            brand="Generic",
+            is_active=True
+        )
+        
+        self.item5 = Item.objects.create(
+            name="Test Item",
+            category="other",
+            unit="pieces",
+            brand="Generic", 
+            is_active=True
+        )
+        
+        # Create test inventory relationships
         self.inventory1 = Inventory.objects.create(
             store=self.store1,
-            item_name="Coca Cola",
+            item=self.item1,
             quantity=100,
-            unit="pieces",
             price=Decimal('15000'),
-            category="beverages",
+            min_stock_level=10,
             is_available=True
         )
         
         self.inventory2 = Inventory.objects.create(
             store=self.store1,
-            item_name="Instant Noodles",
+            item=self.item2,
             quantity=50,
-            unit="packs",
             price=Decimal('25000'),
-            category="snacks",
+            min_stock_level=5,
             is_available=True
         )
         
         self.inventory3 = Inventory.objects.create(
             store=self.store2,
-            item_name="Mineral Water",
+            item=self.item3,
             quantity=200,
-            unit="bottles",
             price=Decimal('8000'),
-            category="beverages",
+            min_stock_level=20,
             is_available=True
         )
         
         self.inventory4 = Inventory.objects.create(
             store=self.store3,
-            item_name="Pain Relief Medicine",
+            item=self.item4,
             quantity=30,
-            unit="boxes",
             price=Decimal('45000'),
-            category="personal_care",
+            min_stock_level=5,
             is_available=True
         )
         
         # Inventory for inactive store (should not appear in results)
         self.inventory5 = Inventory.objects.create(
             store=self.store4,
-            item_name="Test Item",
+            item=self.item5,
             quantity=10,
-            unit="pieces",
             price=Decimal('10000'),
-            category="other",
+            min_stock_level=2,
             is_available=True
         )
         

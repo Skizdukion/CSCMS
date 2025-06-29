@@ -7,7 +7,6 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -17,8 +16,8 @@ import operator
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
-from .models import Store, Inventory, District
-from .serializers import StoreSerializer, InventorySerializer, DistrictSerializer, StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer
+from .models import Store, Item, Inventory, District
+from .serializers import StoreSerializer, ItemSerializer, InventorySerializer, DistrictSerializer, StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer
 
 class StoreViewSet(viewsets.ModelViewSet):
     """
@@ -28,7 +27,6 @@ class StoreViewSet(viewsets.ModelViewSet):
     """
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['store_type', 'city', 'district', 'is_active']
     search_fields = ['name', 'address', 'city']
@@ -185,7 +183,7 @@ class StoreViewSet(viewsets.ModelViewSet):
         if inventory_item:
             # Filter stores that have the specific inventory item available
             queryset = queryset.filter(
-                inventories__item_name__icontains=inventory_item,
+                inventories__item__name__icontains=inventory_item,
                 inventories__is_available=True
             ).distinct()
 
@@ -262,25 +260,123 @@ class StoreViewSet(viewsets.ModelViewSet):
         })
 
 
+class ItemViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for viewing and editing items.
+    
+    Provides CRUD operations for Item model.
+    """
+    queryset = Item.objects.all()
+    serializer_class = ItemSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['category', 'brand', 'is_active']
+    search_fields = ['name', 'description', 'brand', 'barcode']
+    ordering_fields = ['name', 'category', 'brand', 'created_at']
+    ordering = ['name']
+
+    def get_queryset(self):
+        """Optimize queryset with prefetch_related."""
+        return Item.objects.prefetch_related('stores', 'inventories')
+
+    @extend_schema(
+        summary="Search items",
+        description="Search items by name, category, or availability",
+        parameters=[
+            OpenApiParameter(name='name', type=str, description='Item name to search for'),
+            OpenApiParameter(name='category', type=str, description='Item category'),
+            OpenApiParameter(name='brand', type=str, description='Item brand'),
+            OpenApiParameter(name='available_only', type=bool, description='Show only items available in stores'),
+        ]
+    )
+    @action(detail=False, methods=['get'], url_path='search')
+    def search_items(self, request):
+        """Search items by various criteria."""
+        name = request.query_params.get('name')
+        category = request.query_params.get('category')
+        brand = request.query_params.get('brand')
+        available_only = request.query_params.get('available_only', 'false').lower() == 'true'
+        
+        queryset = self.get_queryset()
+        
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        if category:
+            queryset = queryset.filter(category=category)
+        if brand:
+            queryset = queryset.filter(brand__icontains=brand)
+        if available_only:
+            queryset = queryset.filter(inventories__is_available=True).distinct()
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        summary="Get item statistics",
+        description="Get comprehensive statistics about items",
+        responses={200: dict}
+    )
+    @action(detail=False, methods=['get'], url_path='statistics')
+    def statistics(self, request):
+        """Get item statistics."""
+        queryset = self.get_queryset()
+        
+        stats = {
+            'total_items': queryset.count(),
+            'active_items': queryset.filter(is_active=True).count(),
+            'items_by_category': dict(queryset.values_list('category').annotate(count=Count('id'))),
+            'items_by_brand': dict(queryset.values_list('brand').annotate(count=Count('id'))),
+            'items_in_stock': queryset.filter(inventories__is_available=True).distinct().count(),
+        }
+        
+        return Response(stats)
+
+    @extend_schema(
+        summary="Get stores for item",
+        description="Get all stores that stock this item",
+    )
+    @action(detail=True, methods=['get'], url_path='stores')
+    def item_stores(self, request, pk=None):
+        """Get all stores that stock this item."""
+        try:
+            item = self.get_object()
+            stores = item.stores.all()
+            
+            page = self.paginate_queryset(stores)
+            if page is not None:
+                serializer = StoreListSerializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = StoreListSerializer(stores, many=True)
+            return Response(serializer.data)
+        except Item.DoesNotExist:
+            return Response(
+                {'error': 'Item not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
 
 class InventoryViewSet(viewsets.ModelViewSet):
     """
-    API endpoint for viewing and editing inventory items.
+    API endpoint for viewing and editing inventory entries.
     
-    Provides CRUD operations for Inventory model.
+    Provides CRUD operations for Inventory model (store-item relationships).
     """
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['store', 'category', 'is_available']
-    search_fields = ['item_name', 'store__name']
-    ordering_fields = ['item_name', 'quantity', 'price', 'created_at']
-    ordering = ['item_name']
+    filterset_fields = ['store', 'item', 'item__category', 'is_available']
+    search_fields = ['item__name', 'store__name', 'item__brand']
+    ordering_fields = ['item__name', 'created_at']
+    ordering = ['item__name']
 
     def get_queryset(self):
         """Optimize queryset with select_related."""
-        return Inventory.objects.select_related('store', 'store__district_obj')
+        return Inventory.objects.select_related('store', 'item', 'store__district_obj')
 
     def get_serializer_class(self):
         """Use different serializers for different actions."""
@@ -347,9 +443,9 @@ class InventoryViewSet(viewsets.ModelViewSet):
         queryset = self.get_queryset()
         
         if item_name:
-            queryset = queryset.filter(item_name__icontains=item_name)
+            queryset = queryset.filter(item__name__icontains=item_name)
         if category:
-            queryset = queryset.filter(category=category)
+            queryset = queryset.filter(item__category=category)
         if available_only:
             queryset = queryset.filter(is_available=True)
         
@@ -374,10 +470,9 @@ class InventoryViewSet(viewsets.ModelViewSet):
         stats = {
             'total_items': queryset.count(),
             'available_items': queryset.filter(is_available=True).count(),
-            'items_by_category': dict(queryset.values_list('category').annotate(count=Count('id'))),
+            'unavailable_items': queryset.filter(is_available=False).count(),
+            'items_by_category': dict(queryset.values_list('item__category').annotate(count=Count('id'))),
             'items_by_store': dict(queryset.values_list('store__name').annotate(count=Count('id'))),
-            'average_price': queryset.aggregate(avg=Avg('price'))['avg'] or 0,
-            'total_quantity': queryset.aggregate(total=Count('quantity'))['total'] or 0,
         }
         
         return Response(stats)
@@ -392,7 +487,7 @@ class InventoryViewSet(viewsets.ModelViewSet):
         """Get list of available inventory items."""
         items = self.get_queryset().filter(
             is_available=True
-        ).values_list('item_name', flat=True).distinct().order_by('item_name')
+        ).values_list('item__name', flat=True).distinct().order_by('item__name')
         
         return Response({
             'items': list(items)
@@ -406,7 +501,6 @@ class DistrictViewSet(viewsets.ModelViewSet):
     """
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['city', 'district_type', 'is_active']
     search_fields = ['name', 'code', 'city']

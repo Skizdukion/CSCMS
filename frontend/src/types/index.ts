@@ -77,18 +77,32 @@ export interface InventorySearchFilters {
   limit?: number;
 }
 
-// Inventory interface
+// Item interface
+export interface Item {
+  id?: number;
+  name: string;
+  description?: string;
+  category: 'beverages' | 'snacks' | 'dairy' | 'frozen' | 'household' | 'personal_care' | 'other';
+  brand?: string;
+  barcode?: string;
+  is_active: boolean;
+  store_count?: number;
+  available_stores?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Inventory interface (relationship between items and stores)
 export interface Inventory {
   id?: number;
   store: number;
   store_name?: string;
-  item_name: string;
-  quantity: number;
-  unit: string;
-  price: string;
-  category: 'beverages' | 'snacks' | 'household' | 'pharmacy' | 'electronics' | 'food' | 'other';
+  store_address?: string;
+  item: number;
+  item_name?: string;
+  item_category?: string;
   is_available: boolean;
-  low_stock_threshold?: number;
+  stock_status?: 'available' | 'unavailable';
   created_at?: string;
   updated_at?: string;
 }

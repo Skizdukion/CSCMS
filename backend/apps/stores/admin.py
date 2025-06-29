@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.db.models import Count, Avg
 from django.contrib.admin import SimpleListFilter
 
-from backend.apps.stores.models import District, Store, Inventory
+from backend.apps.stores.models import District, Store, Item, Inventory
 
 
 class DistrictTypeFilter(SimpleListFilter):
@@ -57,8 +57,12 @@ class InventoryInline(admin.TabularInline):
     """Inline admin for inventory items."""
     model = Inventory
     extra = 1
-    fields = ('item_name', 'quantity', 'unit', 'price', 'category', 'is_available')
+    fields = ('item', 'is_available')
     readonly_fields = ('created_at', 'updated_at')
+    
+    def get_queryset(self, request):
+        """Optimize queryset with select_related."""
+        return super().get_queryset(request).select_related('item')
 
 
 @admin.register(District)
@@ -213,24 +217,71 @@ class InventoryCategoryFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(category=self.value())
+            return queryset.filter(item__category=self.value())
+
+
+@admin.register(Item)
+class ItemAdmin(admin.ModelAdmin):
+    """Admin interface for Item model."""
+    
+    list_display = ('name', 'category', 'brand', 'store_count', 'is_active')
+    list_filter = ('category', 'is_active', 'brand')
+    search_fields = ('name', 'description', 'brand', 'barcode')
+    readonly_fields = ('created_at', 'updated_at', 'store_count')
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'description', 'category', 'brand', 'is_active')
+        }),
+        ('Product Details', {
+            'fields': ('barcode',),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def store_count(self, obj):
+        """Display the number of stores that stock this item."""
+        count = obj.get_store_count()
+        if count > 0:
+            url = reverse('admin:stores_inventory_changelist') + f'?item__id__exact={obj.id}'
+            return format_html('<a href="{}">{} stores</a>', url, count)
+        return '0 stores'
+    store_count.short_description = 'Stores'
+    
+    actions = ['activate_items', 'deactivate_items']
+    
+    def activate_items(self, request, queryset):
+        """Activate selected items."""
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} items were successfully activated.')
+    activate_items.short_description = "Activate selected items"
+    
+    def deactivate_items(self, request, queryset):
+        """Deactivate selected items."""
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} items were successfully deactivated.')
+    deactivate_items.short_description = "Deactivate selected items"
 
 
 @admin.register(Inventory)
 class InventoryAdmin(admin.ModelAdmin):
     """Admin interface for Inventory model."""
     
-    list_display = ('item_name', 'store', 'quantity', 'unit', 'price', 'category', 'is_available', 'store_location')
-    list_filter = (InventoryCategoryFilter, 'unit', 'is_available', 'store__district', 'store__store_type')
-    search_fields = ('item_name', 'store__name', 'store__address')
-    readonly_fields = ('created_at', 'updated_at', 'store_location')
+    list_display = ('item', 'store', 'stock_status', 'is_available', 'store_location')
+    list_filter = (InventoryCategoryFilter, 'is_available', 'store__district', 'store__store_type')
+    search_fields = ('item__name', 'store__name', 'store__address')
+    readonly_fields = ('created_at', 'updated_at', 'store_location', 'stock_status')
     
     fieldsets = (
-        ('Item Information', {
-            'fields': ('item_name', 'quantity', 'unit', 'price', 'category', 'is_available')
+        ('Inventory Information', {
+            'fields': ('item', 'store', 'is_available')
         }),
-        ('Store Information', {
-            'fields': ('store', 'store_location'),
+        ('Status', {
+            'fields': ('stock_status', 'store_location'),
             'classes': ('collapse',)
         }),
         ('Timestamps', {
@@ -246,7 +297,11 @@ class InventoryAdmin(admin.ModelAdmin):
         return "No location"
     store_location.short_description = 'Store Location'
     
-    actions = ['mark_available', 'mark_unavailable', 'reset_quantity']
+    def get_queryset(self, request):
+        """Optimize queryset with select_related."""
+        return super().get_queryset(request).select_related('item', 'store')
+    
+    actions = ['mark_available', 'mark_unavailable']
     
     def mark_available(self, request, queryset):
         """Mark selected items as available."""
@@ -259,12 +314,6 @@ class InventoryAdmin(admin.ModelAdmin):
         updated = queryset.update(is_available=False)
         self.message_user(request, f'{updated} items were marked as unavailable.')
     mark_unavailable.short_description = "Mark items as unavailable"
-    
-    def reset_quantity(self, request, queryset):
-        """Reset quantity to 0 for selected items."""
-        updated = queryset.update(quantity=0)
-        self.message_user(request, f'Quantity reset to 0 for {updated} items.')
-    reset_quantity.short_description = "Reset quantity to 0"
 
 
 # Customize admin site

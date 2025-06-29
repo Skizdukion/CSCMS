@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 import json
 
-from backend.apps.stores.models import District, Store, Inventory
+from backend.apps.stores.models import District, Store, Item, Inventory
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -242,25 +242,70 @@ class StoreListSerializer(serializers.ModelSerializer):
         return obj.inventories.count()
 
 
+class ItemSerializer(serializers.ModelSerializer):
+    """Serializer for Item model."""
+    
+    # Computed fields
+    store_count = serializers.SerializerMethodField()
+    available_stores = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Item
+        fields = [
+            'id', 'name', 'description', 'category', 'brand', 'barcode', 
+            'is_active', 'store_count', 'available_stores',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at', 'store_count', 'available_stores']
+    
+    def get_store_count(self, obj):
+        """Return the number of stores that stock this item."""
+        return obj.get_store_count()
+    
+    def get_available_stores(self, obj):
+        """Return stores where this item is currently available."""
+        return obj.get_available_stores().count()
+    
+    def validate_name(self, value):
+        """Validate item name is unique."""
+        if value:
+            # Check for uniqueness excluding current instance (for updates)
+            queryset = Item.objects.filter(name__iexact=value.strip())
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise ValidationError("An item with this name already exists.")
+        return value.strip() if value else value
+
+
 class InventorySerializer(serializers.ModelSerializer):
-    """Serializer for Inventory model."""
+    """Serializer for Inventory model with Item and Store relationships."""
     
     # Related fields
     store = StoreSerializer(read_only=True)
     store_id = serializers.IntegerField(write_only=True)
+    item = ItemSerializer(read_only=True)
+    item_id = serializers.IntegerField(write_only=True)
     
     # Computed fields
     store_name = serializers.CharField(source='store.name', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    item_category = serializers.CharField(source='item.category', read_only=True)
+    stock_status = serializers.SerializerMethodField()
     store_location = serializers.SerializerMethodField()
     
     class Meta:
         model = Inventory
         fields = [
-            'id', 'store', 'store_id', 'store_name', 'item_name',
-            'quantity', 'unit', 'price', 'category', 'is_available',
-            'store_location', 'created_at', 'updated_at'
+            'id', 'store', 'store_id', 'store_name', 'item', 'item_id', 
+            'item_name', 'item_category',
+            'is_available', 'stock_status', 'store_location', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at', 'stock_status']
+    
+    def get_stock_status(self, obj):
+        """Return stock status."""
+        return obj.stock_status
     
     def get_store_location(self, obj):
         """Return store location information."""
@@ -272,23 +317,32 @@ class InventorySerializer(serializers.ModelSerializer):
             }
         return None
     
-    def validate_quantity(self, value):
-        """Validate quantity is non-negative."""
-        if value < 0:
-            raise ValidationError("Quantity cannot be negative.")
-        return value
-    
-    def validate_price(self, value):
-        """Validate price is non-negative."""
-        if value is not None and value < 0:
-            raise ValidationError("Price cannot be negative.")
-        return value
-    
     def validate_store_id(self, value):
         """Validate store_id exists."""
         if not Store.objects.filter(id=value).exists():  
             raise ValidationError("Store with this ID does not exist.")
         return value
+    
+    def validate_item_id(self, value):
+        """Validate item_id exists."""
+        if not Item.objects.filter(id=value).exists():  
+            raise ValidationError("Item with this ID does not exist.")
+        return value
+    
+    def validate(self, data):
+        """Validate unique constraint for store-item combination."""
+        store_id = data.get('store_id')
+        item_id = data.get('item_id')
+        
+        if store_id and item_id:
+            # Check for existing inventory entry
+            queryset = Inventory.objects.filter(store_id=store_id, item_id=item_id)
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise ValidationError("This item is already in the inventory for this store.")
+        
+        return data
 
 
 class InventoryListSerializer(serializers.ModelSerializer):
@@ -296,13 +350,20 @@ class InventoryListSerializer(serializers.ModelSerializer):
     
     store_name = serializers.CharField(source='store.name', read_only=True)
     store_address = serializers.CharField(source='store.address', read_only=True)
+    item_name = serializers.CharField(source='item.name', read_only=True)
+    item_category = serializers.CharField(source='item.category', read_only=True)
+    stock_status = serializers.SerializerMethodField()
     
     class Meta:
         model = Inventory
         fields = [
-            'id', 'item_name', 'quantity', 'unit', 'price',
-            'category', 'is_available', 'store_name', 'store_address'
+            'id', 'item_name', 'item_category',
+            'is_available', 'stock_status', 'store_name', 'store_address'
         ]
+    
+    def get_stock_status(self, obj):
+        """Return stock status."""
+        return obj.stock_status
 
 
 class SpatialSearchSerializer(serializers.Serializer):

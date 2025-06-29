@@ -8,7 +8,7 @@ from django.contrib.gis.geos import Point, Polygon
 from decimal import Decimal
 import random
 
-from backend.apps.stores.models import District, Store, Inventory
+from backend.apps.stores.models import District, Store, Item, Inventory
 
 
 class Command(BaseCommand):
@@ -312,69 +312,77 @@ class Command(BaseCommand):
         return stores
 
     def create_inventory(self, stores):
-        """Create inventory items for all stores."""
-        inventory_items = [
+        """Create items and inventory relationships for all stores."""
+        # First create all the items
+        items_data = [
             # Beverages
-            {'item_name': 'Coca-Cola 330ml', 'unit': 'cans', 'price': Decimal('8000'), 'category': 'beverages'},
-            {'item_name': 'Pepsi 330ml', 'unit': 'cans', 'price': Decimal('8000'), 'category': 'beverages'},
-            {'item_name': 'Red Bull 250ml', 'unit': 'cans', 'price': Decimal('12000'), 'category': 'beverages'},
-            {'item_name': 'Coffee 3-in-1', 'unit': 'packets', 'price': Decimal('3000'), 'category': 'beverages'},
-            {'item_name': 'Green Tea 500ml', 'unit': 'bottles', 'price': Decimal('15000'), 'category': 'beverages'},
-            {'item_name': 'Orange Juice 1L', 'unit': 'bottles', 'price': Decimal('25000'), 'category': 'beverages'},
+            {'name': 'Coca-Cola 330ml', 'category': 'beverages', 'brand': 'Coca-Cola', 'description': 'Classic cola drink, 330ml can'},
+            {'name': 'Pepsi 330ml', 'category': 'beverages', 'brand': 'Pepsi', 'description': 'Cola drink, 330ml can'},
+            {'name': 'Red Bull 250ml', 'category': 'beverages', 'brand': 'Red Bull', 'description': 'Energy drink, 250ml can'},
+            {'name': 'Coffee 3-in-1', 'category': 'beverages', 'brand': 'Trung Nguyen', 'description': 'Instant coffee mix'},
+            {'name': 'Green Tea 500ml', 'category': 'beverages', 'brand': 'Lipton', 'description': 'Bottled green tea, 500ml'},
+            {'name': 'Orange Juice 1L', 'category': 'beverages', 'brand': 'TH True', 'description': 'Fresh orange juice, 1 liter'},
             
             # Snacks
-            {'item_name': 'Pringles Original', 'unit': 'cans', 'price': Decimal('35000'), 'category': 'snacks'},
-            {'item_name': 'Lay\'s Classic', 'unit': 'bags', 'price': Decimal('15000'), 'category': 'snacks'},
-            {'item_name': 'Oreo Cookies', 'unit': 'packs', 'price': Decimal('25000'), 'category': 'snacks'},
-            {'item_name': 'M&M\'s Chocolate', 'unit': 'bags', 'price': Decimal('20000'), 'category': 'snacks'},
-            {'item_name': 'Instant Noodles', 'unit': 'packets', 'price': Decimal('8000'), 'category': 'snacks'},
-            {'item_name': 'Potato Chips', 'unit': 'bags', 'price': Decimal('12000'), 'category': 'snacks'},
+            {'name': 'Pringles Original', 'category': 'snacks', 'brand': 'Pringles', 'description': 'Potato chips in canister'},
+            {'name': 'Lay\'s Classic', 'category': 'snacks', 'brand': 'Lay\'s', 'description': 'Classic potato chips'},
+            {'name': 'Oreo Cookies', 'category': 'snacks', 'brand': 'Oreo', 'description': 'Chocolate sandwich cookies'},
+            {'name': 'M&M\'s Chocolate', 'category': 'snacks', 'brand': 'M&M\'s', 'description': 'Chocolate candies'},
+            {'name': 'Instant Noodles', 'category': 'snacks', 'brand': 'Acecook', 'description': 'Instant ramen noodles'},
+            {'name': 'Potato Chips', 'category': 'snacks', 'brand': 'Oishi', 'description': 'Crispy potato chips'},
             
             # Household
-            {'item_name': 'Toothpaste', 'unit': 'tubes', 'price': Decimal('25000'), 'category': 'household'},
-            {'item_name': 'Shampoo 400ml', 'unit': 'bottles', 'price': Decimal('45000'), 'category': 'household'},
-            {'item_name': 'Soap Bar', 'unit': 'bars', 'price': Decimal('15000'), 'category': 'household'},
-            {'item_name': 'Tissue Paper', 'unit': 'rolls', 'price': Decimal('8000'), 'category': 'household'},
-            {'item_name': 'Laundry Detergent', 'unit': 'packs', 'price': Decimal('35000'), 'category': 'household'},
-            {'item_name': 'Dish Soap', 'unit': 'bottles', 'price': Decimal('20000'), 'category': 'household'},
+            {'name': 'Toothpaste', 'category': 'household', 'brand': 'Colgate', 'description': 'Fluoride toothpaste'},
+            {'name': 'Shampoo 400ml', 'category': 'household', 'brand': 'Sunsilk', 'description': 'Hair shampoo, 400ml bottle'},
+            {'name': 'Soap Bar', 'category': 'household', 'brand': 'Lifebuoy', 'description': 'Antibacterial soap bar'},
+            {'name': 'Tissue Paper', 'category': 'household', 'brand': 'Tempo', 'description': 'Facial tissue paper'},
+            {'name': 'Laundry Detergent', 'category': 'household', 'brand': 'OMO', 'description': 'Laundry washing powder'},
+            {'name': 'Dish Soap', 'category': 'household', 'brand': 'Sunlight', 'description': 'Dishwashing liquid'},
             
             # Personal Care
-            {'item_name': 'Deodorant', 'unit': 'cans', 'price': Decimal('30000'), 'category': 'personal_care'},
-            {'item_name': 'Razor Blades', 'unit': 'packs', 'price': Decimal('25000'), 'category': 'personal_care'},
-            {'item_name': 'Face Cream', 'unit': 'tubes', 'price': Decimal('40000'), 'category': 'personal_care'},
-            {'item_name': 'Sunscreen SPF 50', 'unit': 'bottles', 'price': Decimal('60000'), 'category': 'personal_care'},
+            {'name': 'Deodorant', 'category': 'personal_care', 'brand': 'Rexona', 'description': 'Antiperspirant deodorant'},
+            {'name': 'Razor Blades', 'category': 'personal_care', 'brand': 'Gillette', 'description': 'Replacement razor blades'},
+            {'name': 'Face Cream', 'category': 'personal_care', 'brand': 'Nivea', 'description': 'Moisturizing face cream'},
+            {'name': 'Sunscreen SPF 50', 'category': 'personal_care', 'brand': 'Bioré', 'description': 'UV protection sunscreen'},
             
-            # Health
-            {'item_name': 'Paracetamol 500mg', 'unit': 'packs', 'price': Decimal('15000'), 'category': 'health'},
-            {'item_name': 'Vitamin C 1000mg', 'unit': 'bottles', 'price': Decimal('80000'), 'category': 'health'},
-            {'item_name': 'Band-Aids', 'unit': 'boxes', 'price': Decimal('12000'), 'category': 'health'},
-            {'item_name': 'Hand Sanitizer', 'unit': 'bottles', 'price': Decimal('25000'), 'category': 'health'},
+            # Other (Health products)
+            {'name': 'Paracetamol 500mg', 'category': 'other', 'brand': 'Hapacol', 'description': 'Pain relief medication'},
+            {'name': 'Vitamin C 1000mg', 'category': 'other', 'brand': 'DHC', 'description': 'Vitamin C supplement'},
+            {'name': 'Band-Aids', 'category': 'other', 'brand': 'Band-Aid', 'description': 'Adhesive bandages'},
+            {'name': 'Hand Sanitizer', 'category': 'other', 'brand': 'Dettol', 'description': 'Antibacterial hand sanitizer'},
         ]
 
+        # Create Item objects
+        items = []
+        for item_data in items_data:
+            item, created = Item.objects.get_or_create(
+                name=item_data['name'],
+                defaults=item_data
+            )
+            items.append(item)
+            if created:
+                self.stdout.write(f'Created item: {item.name}')
+
+        # Create inventory relationships
         for store in stores:
             # Each store gets a random selection of items
-            store_items = random.sample(inventory_items, random.randint(15, 25))
+            store_items = random.sample(items, random.randint(15, 25))
             
-            for item_data in store_items:
-                # Randomize quantity and availability
-                quantity = random.randint(10, 100)
+            for item in store_items:
+                # Randomize availability
                 is_available = random.choice([True, True, True, False])  # 75% chance of being available
                 
                 inventory_data = {
                     'store': store,
-                    'item_name': item_data['item_name'],
-                    'quantity': quantity,
-                    'unit': item_data['unit'],
-                    'price': item_data['price'],
-                    'category': item_data['category'],
+                    'item': item,
                     'is_available': is_available
                 }
                 
                 inventory, created = Inventory.objects.get_or_create(
                     store=store,
-                    item_name=item_data['item_name'],
+                    item=item,
                     defaults=inventory_data
                 )
                 
                 if created:
-                    self.stdout.write(f'Created inventory: {inventory.item_name} at {store.name}') 
+                    self.stdout.write(f'Created inventory: {item.name} at {store.name}') 

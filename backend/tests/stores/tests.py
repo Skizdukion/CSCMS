@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from backend.apps.stores.models import District, Store, Inventory
 
-from backend.apps.stores.models import Store, District, Inventory
+from backend.apps.stores.models import Store, District, Inventory, Item
 
 
 class DistrictModelTest(TestCase):
@@ -277,6 +277,86 @@ class StoreModelTest(TestCase):
         self.assertEqual(store.location.y, 10.8)  # type: ignore[attribute-defined]
 
 
+class ItemModelTest(TestCase):
+    """Test cases for the Item model."""
+
+    def setUp(self):
+        """Set up test data for Item model."""
+        self.item_data = {
+            "name": "Test Product",
+            "description": "A test product for unit testing",
+            "category": "beverages",
+            "brand": "Test Brand",
+            "barcode": "1234567890123",
+            "unit": "piece",
+            "is_active": True,
+        }
+
+    def test_create_item(self):
+        """Test creating an item."""
+        item = Item.objects.create(**self.item_data)  # type: ignore[attribute-defined]
+        self.assertEqual(item.name, "Test Product")
+        self.assertEqual(item.description, "A test product for unit testing")
+        self.assertEqual(item.category, "beverages")
+        self.assertEqual(item.brand, "Test Brand")
+        self.assertEqual(item.barcode, "1234567890123")
+        self.assertEqual(item.unit, "piece")
+        self.assertTrue(item.is_active)
+
+    def test_item_validation_constraints(self):
+        """Test item field validation constraints."""
+        # Test empty name
+        with self.assertRaises(ValidationError):
+            item = Item(name="", category="beverages", unit="piece")
+            item.full_clean()
+
+        # Test invalid category
+        with self.assertRaises(ValidationError):
+            item = Item(name="Test", category="invalid_category", unit="piece")
+            item.full_clean()
+
+        # Test invalid unit
+        with self.assertRaises(ValidationError):
+            item = Item(name="Test", category="beverages", unit="invalid_unit")
+            item.full_clean()
+
+    def test_item_str_representation(self):
+        """Test item string representation."""
+        item = Item.objects.create(**self.item_data)  # type: ignore[attribute-defined]
+        self.assertEqual(str(item), "Test Product")
+
+    def test_item_str_representation_without_brand(self):
+        """Test item string representation without brand."""
+        item_data = self.item_data.copy()
+        item_data.pop("brand")
+        item = Item.objects.create(**item_data)  # type: ignore[attribute-defined]
+        self.assertEqual(str(item), "Test Product")
+
+    def test_item_choices_validation(self):
+        """Test that item choices are properly validated."""
+        item = Item.objects.create(**self.item_data)  # type: ignore[attribute-defined]
+        
+        # Test valid category choice
+        self.assertIn(
+            item.category,
+            [
+                "beverages",
+                "snacks",
+                "dairy",
+                "frozen",
+                "household",
+                "personal_care",
+                "other",
+            ],
+        )
+
+        # Test valid unit choice
+        self.assertIn(
+            item.unit, 
+            ["piece", "bottle", "can", "pack", "box", "bag", "kg", "g", "liter", "ml"]
+        )
+
+
 class InventoryModelTest(TestCase):
     """Test cases for the Inventory model."""
 
@@ -294,13 +374,18 @@ class InventoryModelTest(TestCase):
             city="Ho Chi Minh City",
         )  # type: ignore[attribute-defined]
 
+        self.item = Item.objects.create(  # type: ignore[attribute-defined]
+            name="Test Product",
+            description="A test product",
+            category="beverages",
+            brand="Test Brand",
+            unit="piece",
+            is_active=True,
+        )  # type: ignore[attribute-defined]
+
         self.inventory_data = {
             "store": self.store,
-            "item_name": "Test Product",
-            "quantity": 100,
-            "unit": "pieces",
-            "price": Decimal("15000"),
-            "category": "beverages",
+            "item": self.item,
             "is_available": True,
         }
 
@@ -308,11 +393,10 @@ class InventoryModelTest(TestCase):
         """Test creating an inventory item."""
         inventory = Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
         self.assertEqual(inventory.store, self.store)
-        self.assertEqual(inventory.item_name, "Test Product")
+        self.assertEqual(inventory.item, self.item)
         self.assertEqual(inventory.quantity, 100)
-        self.assertEqual(inventory.unit, "pieces")
         self.assertEqual(inventory.price, Decimal("15000"))
-        self.assertEqual(inventory.category, "beverages")
+        self.assertEqual(inventory.min_stock_level, 10)
         self.assertTrue(inventory.is_available)
 
     def test_inventory_validation_constraints(self):
@@ -321,15 +405,37 @@ class InventoryModelTest(TestCase):
         with self.assertRaises(ValidationError):
             inventory = Inventory(
                 store=self.store,
-                item_name="Test Product",
+                item=self.item,
                 quantity=-10,  # Should be min 0
+                min_stock_level=5,
+            )
+            inventory.full_clean()
+
+        # Test negative min_stock_level
+        with self.assertRaises(ValidationError):
+            inventory = Inventory(
+                store=self.store,
+                item=self.item,
+                quantity=50,
+                min_stock_level=-5,  # Should be min 0
+            )
+            inventory.full_clean()
+
+        # Test negative price
+        with self.assertRaises(ValidationError):
+            inventory = Inventory(
+                store=self.store,
+                item=self.item,
+                quantity=50,
+                price=Decimal("-1000"),  # Should be min 0
+                min_stock_level=5,
             )
             inventory.full_clean()
 
     def test_inventory_str_representation(self):
         """Test inventory string representation."""
         inventory = Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
-        self.assertEqual(str(inventory), "Test Product (100 pieces) at Test Store")
+        self.assertEqual(str(inventory), "Test Product at Test Store")
 
     def test_inventory_store_relationship(self):
         """Test the relationship between inventory and store."""
@@ -341,27 +447,40 @@ class InventoryModelTest(TestCase):
         # Test reverse relationship
         self.assertIn(inventory, self.store.inventories.all())
 
-    def test_inventory_choices_validation(self):
-        """Test that inventory choices are properly validated."""
-        # Test valid unit choice
+    def test_inventory_item_relationship(self):
+        """Test the relationship between inventory and item."""
         inventory = Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
-        self.assertIn(
-            inventory.unit, ["pieces", "kg", "liters", "boxes", "packs", "other"]
-        )
 
-        # Test valid category choice
-        self.assertIn(
-            inventory.category,
-            [
-                "beverages",
-                "snacks",
-                "dairy",
-                "frozen",
-                "household",
-                "personal_care",
-                "other",
-            ],
-        )
+        # Test forward relationship
+        self.assertEqual(inventory.item, self.item)
+
+        # Test reverse relationship
+        self.assertIn(inventory, self.item.inventories.all())
+
+    def test_inventory_unique_constraint(self):
+        """Test that store-item combination must be unique."""
+        Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
+        
+        # Try to create another inventory with same store and item
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():  # type: ignore[misc]
+                Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
+
+    def test_inventory_stock_status_property(self):
+        """Test the stock_status property."""
+        # Test in stock
+        inventory = Inventory.objects.create(**self.inventory_data)  # type: ignore[attribute-defined]
+        self.assertEqual(inventory.stock_status, "in_stock")
+
+        # Test low stock
+        inventory.quantity = 5  # Below min_stock_level of 10
+        inventory.save()
+        self.assertEqual(inventory.stock_status, "low_stock")
+
+        # Test out of stock
+        inventory.quantity = 0
+        inventory.save()
+        self.assertEqual(inventory.stock_status, "out_of_stock")
 
 
 class SpatialFieldValidationTest(TestCase):
@@ -510,23 +629,42 @@ class ModelIntegrationTest(TestCase):
             city="Ho Chi Minh City",
         )  # type: ignore[attribute-defined]
 
-        # Create inventory items
+        # Create items
+        self.item1 = Item.objects.create(  # type: ignore[attribute-defined]
+            name="Product 1",
+            description="Test product 1",
+            category="beverages",
+            brand="Brand A",
+            unit="piece",
+            is_active=True,
+        )  # type: ignore[attribute-defined]
+
+        self.item2 = Item.objects.create(  # type: ignore[attribute-defined]
+            name="Product 2", 
+            description="Test product 2",
+            category="snacks",
+            brand="Brand B",
+            unit="kg",
+            is_active=True,
+        )  # type: ignore[attribute-defined]
+
+        # Create inventory items (store-item relationships)
         self.inventory1 = Inventory.objects.create(  # type: ignore[attribute-defined]
             store=self.store1,
-            item_name="Product 1",
+            item=self.item1,
             quantity=50,
-            unit="pieces",
             price=Decimal("10000"),
-            category="beverages",
+            min_stock_level=5,
+            is_available=True,
         )  # type: ignore[attribute-defined]
 
         self.inventory2 = Inventory.objects.create(  # type: ignore[attribute-defined]
             store=self.store2,
-            item_name="Product 2",
+            item=self.item2,
             quantity=30,
-            unit="kg",
             price=Decimal("50000"),
-            category="snacks",
+            min_stock_level=10,
+            is_available=True,
         )  # type: ignore[attribute-defined]
 
     def test_district_store_relationship(self):

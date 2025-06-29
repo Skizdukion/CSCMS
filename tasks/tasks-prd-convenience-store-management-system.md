@@ -24,6 +24,7 @@
 - `backend/apps/stores/utils/spatial_helpers.py` - Utility functions for spatial calculations
 - `backend/apps/stores/utils/spatial_helpers.py` - Unit tests for spatial utilities
 - `backend/apps/stores/migrations/` - Django database migrations for spatial data models
+- `backend/apps/stores/migrations/0003_remove_inventory_fields.py` - Migration to remove quantity, price, and min_stock_level fields from inventory
 - `backend/core/__init__.py` - Core backend utilities package
 - `backend/core/middleware.py` - Custom middleware for the application
 - `backend/core/permissions.py` - Custom permissions for API access
@@ -58,6 +59,10 @@
 - `frontend/src/components/Store/StoreList.jsx` - Unit tests for store list
 - `frontend/src/components/Inventory/InventoryForm.jsx` - Inventory management form
 - `frontend/src/components/Inventory/InventoryForm.jsx` - Unit tests for inventory form
+- `frontend/src/components/Inventory/ItemEditForm.tsx` - Form component for editing item details (name and status only)
+- `frontend/src/components/Inventory/ItemEditForm.css` - Styles for the item edit form component
+- `frontend/src/components/Inventory/ItemStoreForm.tsx` - Form component for managing which stores have a specific item
+- `frontend/src/components/Inventory/ItemStoreForm.css` - Styles for the item store management form
 - `frontend/src/components/Reports/StatisticsReport.jsx` - Statistics and reporting component
 - `frontend/src/components/Reports/StatisticsReport.jsx` - Unit tests for reports
 - `frontend/src/services/api.ts` - API service functions for backend communication with TypeScript support
@@ -67,9 +72,6 @@
 - `backend/tests/stores/test_serializers.py` - Serializer tests for the stores app
 - `backend/tests/stores/tests.py` - Model and integration tests for the stores app
 - `backend/apps/stores/management/commands/seed_data.py` - Django management command for seeding HCM City data
-- `backend/apps/stores/fixtures/hcm_districts.json` - District data for Ho Chi Minh City
-- `backend/apps/stores/fixtures/hcm_stores.json` - Store data for Ho Chi Minh City convenience stores
-- `backend/apps/stores/fixtures/hcm_inventory.json` - Inventory data for stores
 - `backend/tests/stores/test_advanced_search.py` - Unit tests for advanced search functionality including location-based search and inventory filtering
 
 ### Notes
@@ -124,10 +126,15 @@
   - [ ] 3.3 Complete store management page (with API communication)
     - [x] 3.3.1 Add new store and edit store feature (create and edit form, form validation, api submitting)
     - [x] 3.3.2 Search store feature (search by name, advanced option for filter district, available inventory, store type, is active, sort by near a picked location)
-  - [ ] 3.5 Create InventoryForm component for inventory management
-  - [ ] 3.7 Implement responsive design for desktop and tablet
-  - [ ] 3.9 Add loading states and user feedback
-  - [ ] 3.10 Write e2e test for main feature with test db (using playwright)
+  - [ ] 3.4 Complete item management page (with API communication)
+    - [x] 3.4.1 Search item (Categories filter, status filter)
+    - [x] 3.4.2 Add new item, edit item, delete item feature (create and edit form, form validation)
+    - [x] 3.4.3 Remove quantity, price, and minimum stock level fields from backend and frontend
+    - [x] 3.4.4 Create ItemEditForm component for editing item name and status only
+    - [x] 3.4.5 Create ItemStoreForm component for managing which stores have an item
+    - [ ] 3.4.6 Update inventory table to search items only (not stores), activate/deactivate items, and manage store associations
+    - [ ] 3.4.7 Fix search box layout to be fully horizontal/flex
+    - [ ] 3.4.8 Update inventory data structure to match new simplified model
 
 - [ ] 4.0 Map Integration and Spatial Features
   - [ ] 4.1 Set up Leaflet.js map component with OpenStreetMap tiles

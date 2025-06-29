@@ -8,7 +8,7 @@ from decimal import Decimal
 from rest_framework.test import APITestCase
 from rest_framework import serializers
 
-from backend.apps.stores.models import District, Store, Inventory
+from backend.apps.stores.models import District, Store, Inventory, Item
 from backend.apps.stores.serializers import (
     DistrictSerializer, StoreSerializer, InventorySerializer,
     StoreListSerializer, InventoryListSerializer,
@@ -226,6 +226,69 @@ class StoreSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
 
 
+class ItemSerializerTest(TestCase):
+    """Test cases for ItemSerializer."""
+    
+    def setUp(self):
+        """Set up test data."""
+        self.item_data = {
+            'name': 'Test Product',
+            'description': 'A test product for unit testing',
+            'category': 'beverages',
+            'brand': 'Test Brand',
+            'barcode': '1234567890123',
+            'unit': 'piece',
+            'is_active': True
+        }
+    
+    def test_item_serialization(self):
+        """Test item serialization."""
+        item = Item.objects.create(**self.item_data)
+        
+        # Import here to avoid circular imports during module loading
+        from backend.apps.stores.serializers import ItemSerializer
+        serializer = ItemSerializer(item)
+        data = serializer.data
+        
+        self.assertEqual(data['name'], 'Test Product')
+        self.assertEqual(data['description'], 'A test product for unit testing')
+        self.assertEqual(data['category'], 'beverages')
+        self.assertEqual(data['brand'], 'Test Brand')
+        self.assertEqual(data['barcode'], '1234567890123')
+        self.assertEqual(data['unit'], 'piece')
+        self.assertTrue(data['is_active'])
+        self.assertEqual(data['store_count'], 0)
+    
+    def test_item_validation(self):
+        """Test item validation."""
+        from backend.apps.stores.serializers import ItemSerializer
+        
+        # Test valid data
+        serializer = ItemSerializer(data=self.item_data)
+        self.assertTrue(serializer.is_valid())
+        
+        # Test invalid category
+        invalid_data = self.item_data.copy()
+        invalid_data['category'] = 'invalid_category'
+        serializer = ItemSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('category', serializer.errors)
+        
+        # Test invalid unit
+        invalid_data = self.item_data.copy()
+        invalid_data['unit'] = 'invalid_unit'
+        serializer = ItemSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('unit', serializer.errors)
+        
+        # Test missing required field
+        invalid_data = self.item_data.copy()
+        invalid_data.pop('name')
+        serializer = ItemSerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('name', serializer.errors)
+
+
 class InventorySerializerTest(TestCase):
     """Test cases for InventorySerializer."""
     
@@ -245,13 +308,18 @@ class InventorySerializerTest(TestCase):
             city='Ho Chi Minh City'
         )
         
+        self.item = Item.objects.create(
+            name='Test Product',
+            description='A test product',
+            category='beverages',
+            brand='Test Brand',
+            unit='piece',
+            is_active=True
+        )
+        
         self.inventory_data = {
             'store': self.store,
-            'item_name': 'Test Product',
-            'quantity': 100,
-            'unit': 'pieces',
-            'price': Decimal('15000'),
-            'category': 'beverages',
+            'item': self.item,
             'is_available': True
         }
     
@@ -261,13 +329,11 @@ class InventorySerializerTest(TestCase):
         serializer = InventorySerializer(inventory)
         data = serializer.data
         
-        self.assertEqual(data['item_name'], 'Test Product')
-        self.assertEqual(data['quantity'], 100)
-        self.assertEqual(data['unit'], 'pieces')
-        self.assertEqual(data['price'], '15000.00')
-        self.assertEqual(data['category'], 'beverages')
         self.assertTrue(data['is_available'])
         self.assertEqual(data['store_name'], 'Test Store')
+        self.assertEqual(data['item_name'], 'Test Product')
+        self.assertEqual(data['item_category'], 'beverages')
+        self.assertEqual(data['stock_status'], 'available')
         self.assertIsNone(data['store_location'])
     
     def test_inventory_serialization_with_store_location(self):
@@ -288,25 +354,13 @@ class InventorySerializerTest(TestCase):
     def test_inventory_validation(self):
         """Test inventory validation."""
         # Test valid data
-        valid_data = self.inventory_data.copy()
-        valid_data['store_id'] = self.store.id
-        valid_data.pop('store', None)
+        valid_data = {
+            'store_id': self.store.id,
+            'item_id': self.item.id,
+            'is_available': True
+        }
         serializer = InventorySerializer(data=valid_data)
         self.assertTrue(serializer.is_valid())
-        
-        # Test invalid quantity
-        invalid_data = valid_data.copy()
-        invalid_data['quantity'] = -10
-        serializer = InventorySerializer(data=invalid_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('quantity', serializer.errors)
-        
-        # Test invalid price
-        invalid_data = valid_data.copy()
-        invalid_data['price'] = Decimal('-1000')
-        serializer = InventorySerializer(data=invalid_data)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn('price', serializer.errors)
         
         # Test invalid store_id
         invalid_data = valid_data.copy()
@@ -314,6 +368,13 @@ class InventorySerializerTest(TestCase):
         serializer = InventorySerializer(data=invalid_data)
         self.assertFalse(serializer.is_valid())
         self.assertIn('store_id', serializer.errors)
+        
+        # Test invalid item_id
+        invalid_data = valid_data.copy()
+        invalid_data['item_id'] = 99999
+        serializer = InventorySerializer(data=invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('item_id', serializer.errors)
 
 
 class SpatialSearchSerializerTest(TestCase):
@@ -449,13 +510,18 @@ class InventoryListSerializerTest(TestCase):
             city='Ho Chi Minh City'
         )
         
+        self.item = Item.objects.create(
+            name='Test Product',
+            description='A test product',
+            category='beverages',
+            brand='Test Brand',
+            unit='piece',
+            is_active=True
+        )
+        
         self.inventory = Inventory.objects.create(
             store=self.store,
-            item_name='Test Product',
-            quantity=100,
-            unit='pieces',
-            price=Decimal('15000'),
-            category='beverages',
+            item=self.item,
             is_available=True
         )
     
@@ -465,10 +531,8 @@ class InventoryListSerializerTest(TestCase):
         data = serializer.data
         
         self.assertEqual(data['item_name'], 'Test Product')
-        self.assertEqual(data['quantity'], 100)
-        self.assertEqual(data['unit'], 'pieces')
-        self.assertEqual(data['price'], '15000.00')
-        self.assertEqual(data['category'], 'beverages')
         self.assertTrue(data['is_available'])
         self.assertEqual(data['store_name'], 'Test Store')
-        self.assertEqual(data['store_address'], '123 Test Street, Ho Chi Minh City') 
+        self.assertEqual(data['store_address'], '123 Test Street, Ho Chi Minh City')
+        self.assertEqual(data['item_category'], 'beverages')
+        self.assertEqual(data['stock_status'], 'available') 

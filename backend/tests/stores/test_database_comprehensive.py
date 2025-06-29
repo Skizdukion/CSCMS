@@ -13,9 +13,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from backend.apps.stores.models import District, Store, Inventory
+    from backend.apps.stores.models import District, Store, Inventory, Item
 
-from backend.apps.stores.models import Store, District, Inventory
+from backend.apps.stores.models import Store, District, Inventory, Item
 
 
 class DatabaseFixtureTest(TestCase):
@@ -127,78 +127,138 @@ class DatabaseFixtureTest(TestCase):
             location=None
         )
         
-        # Create test inventory
+        # Create test items
+        self.items = [
+            Item.objects.create(
+                name='Coca Cola 330ml',
+                description='Coca Cola carbonated drink 330ml',
+                category='beverages',
+                brand='Coca Cola',
+                unit='can',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Instant Noodles',
+                description='Quick cooking instant noodles',
+                category='food',
+                brand='Maggi',
+                unit='pack',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Bread Loaf',
+                description='Fresh bread loaf',
+                category='food',
+                brand='Kinh Do',
+                unit='piece',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Pepsi 500ml',
+                description='Pepsi carbonated drink 500ml',
+                category='beverages',
+                brand='Pepsi',
+                unit='bottle',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Rice 5kg',
+                description='Premium jasmine rice 5kg bag',
+                category='staples',
+                brand='ST25',
+                unit='bag',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Milk 1L',
+                description='Fresh dairy milk 1 liter',
+                category='dairy',
+                brand='Vinamilk',
+                unit='bottle',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Shampoo 400ml',
+                description='Hair care shampoo 400ml bottle',
+                category='personal_care',
+                brand='Pantene',
+                unit='bottle',
+                is_active=True
+            ),
+            Item.objects.create(
+                name='Cigarettes Pack',
+                description='Premium cigarettes pack',
+                category='tobacco',
+                brand='Marlboro',
+                unit='pack',
+                is_active=False  # Tobacco products inactive by default
+            )
+        ]
+        
+        # Create test inventory (store-item relationships)
         self.inventory_items = [
             Inventory.objects.create(
                 store=self.store_alpha,
-                item_name='Coca Cola 330ml',
+                item=self.items[0],  # Coca Cola
                 quantity=120,
-                unit='cans',
                 price=Decimal('12000.00'),
-                category='beverages',
+                min_stock_level=20,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_alpha,
-                item_name='Instant Noodles',
+                item=self.items[1],  # Instant Noodles
                 quantity=80,
-                unit='packages',
                 price=Decimal('8000.00'),
-                category='food',
+                min_stock_level=15,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_alpha,
-                item_name='Bread Loaf',
+                item=self.items[2],  # Bread Loaf
                 quantity=0,
-                unit='pieces',
                 price=Decimal('25000.00'),
-                category='food',
+                min_stock_level=5,
                 is_available=False
             ),
             Inventory.objects.create(
                 store=self.store_beta,
-                item_name='Pepsi 500ml',
+                item=self.items[3],  # Pepsi
                 quantity=200,
-                unit='bottles',
                 price=Decimal('15000.00'),
-                category='beverages',
+                min_stock_level=30,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_beta,
-                item_name='Rice 5kg',
+                item=self.items[4],  # Rice
                 quantity=50,
-                unit='bags',
                 price=Decimal('120000.00'),
-                category='staples',
+                min_stock_level=10,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_gamma,
-                item_name='Milk 1L',
+                item=self.items[5],  # Milk
                 quantity=30,
-                unit='cartons',
                 price=Decimal('28000.00'),
-                category='dairy',
+                min_stock_level=8,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_gamma,
-                item_name='Shampoo 400ml',
+                item=self.items[6],  # Shampoo
                 quantity=15,
-                unit='bottles',
                 price=Decimal('45000.00'),
-                category='personal_care',
+                min_stock_level=5,
                 is_available=True
             ),
             Inventory.objects.create(
                 store=self.store_delta,
-                item_name='Cigarettes Pack',
+                item=self.items[7],  # Cigarettes
                 quantity=100,
-                unit='packs',
                 price=Decimal('55000.00'),
-                category='tobacco',
+                min_stock_level=20,
                 is_available=False
             )
         ]
@@ -302,21 +362,31 @@ class DatabaseFixtureTest(TestCase):
                 )
         
         # Test foreign key constraints are working by verifying valid relationships exist
-        # The fact that we can create inventory items with valid store references
+        # Create a test item first
+        test_item = Item.objects.create(
+            name='Valid Test Item',
+            description='A test item for validation',
+            category='other',
+            unit='piece',
+            is_active=True
+        )
+        
+        # The fact that we can create inventory items with valid store and item references
         # and that our models work correctly throughout all tests demonstrates
         # that foreign key constraints are properly enforced
         valid_inventory = Inventory.objects.create(
             store=self.store_alpha,
-            item_name='Valid Test Item',
+            item=test_item,
             quantity=5,
-            unit='pieces',
             price=Decimal('5000'),
-            category='test'
+            min_stock_level=1,
+            is_available=True
         )
         self.assertIsNotNone(valid_inventory.id)
         
-        # Clean up the test item
+        # Clean up the test items
         valid_inventory.delete()
+        test_item.delete()
         
         # Test field validation
         with self.assertRaises(ValidationError):
@@ -356,13 +426,22 @@ class DatabaseTransactionTest(TransactionTestCase):
                 location=Point(106.71, 10.81, srid=4326)
             )
             
+            # Create test item first
+            test_item = Item.objects.create(
+                name='Atomic Test Item',
+                description='Test item for atomic transaction',
+                category='other',
+                unit='piece',
+                is_active=True
+            )
+            
             Inventory.objects.create(
                 store=new_store,
-                item_name='Atomic Test Item',
+                item=test_item,
                 quantity=50,
-                unit='pieces',
                 price=Decimal('10000'),
-                category='test'
+                min_stock_level=5,
+                is_available=True
             )
         
         # Both operations should have succeeded
@@ -381,14 +460,23 @@ class DatabaseTransactionTest(TransactionTestCase):
                     location=Point(106.72, 10.82, srid=4326)
                 )
                 
+                # Create test item first
+                failed_item = Item.objects.create(
+                    name='Failed Item',
+                    description='Test item for failed transaction',
+                    category='other',
+                    unit='piece',
+                    is_active=True
+                )
+                
                 # This should fail due to invalid foreign key
                 Inventory.objects.create(
                     store_id=999,  # Non-existent store
-                    item_name='Failed Item',
+                    item=failed_item,
                     quantity=10,
-                    unit='pieces',
                     price=Decimal('5000'),
-                    category='test'
+                    min_stock_level=1,
+                    is_available=True
                 )
         except IntegrityError:
             pass  # Expected to fail
@@ -454,15 +542,25 @@ class DatabasePerformanceTest(TestCase):
             location=Point(106.7, 10.8, srid=4326)
         )
         
-        # Create some inventory for aggregation tests
+        # Create some items and inventory for aggregation tests
+        self.test_items = []
         for i in range(5):
+            test_item = Item.objects.create(
+                name=f'Test Item {i}',
+                description=f'Test item {i} for performance testing',
+                category='beverages' if i % 2 == 0 else 'food',
+                unit='piece',
+                is_active=True
+            )
+            self.test_items.append(test_item)
+            
             Inventory.objects.create(
                 store=self.store1,
-                item_name=f'Test Item {i}',
+                item=test_item,
                 quantity=10 * (i + 1),
-                unit='pieces',
                 price=Decimal(f'{1000 * (i + 1)}'),
-                category='beverages' if i % 2 == 0 else 'food'
+                min_stock_level=5,
+                is_available=True
             )
     
     def test_query_optimization(self):
@@ -529,10 +627,10 @@ class DatabasePerformanceTest(TestCase):
         self.assertIsNotNone(inventory_stats['min_price'])
         
         # Test aggregation with grouping
-        inventory_by_category = Inventory.objects.values('category').annotate(
+        inventory_by_category = Inventory.objects.values('item__category').annotate(
             item_count=Count('id'),
             total_value=Sum('quantity') * Sum('price')
-        ).order_by('category')
+        ).order_by('item__category')
         
         self.assertGreater(len(inventory_by_category), 0)
         
