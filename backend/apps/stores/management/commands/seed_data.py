@@ -1,13 +1,17 @@
 """
 Django management command to seed the database with Ho Chi Minh City data.
-Usage: python manage.py seed_data
+Main coordinator command that runs individual seed parts.
+
+Usage: 
+  python manage.py seed_data                    # Run all parts
+  python manage.py seed_data --part 1           # Run only districts
+  python manage.py seed_data --part 2           # Run only stores
+  python manage.py seed_data --part 3           # Run only products  
+  python manage.py seed_data --part 4           # Run only inventory
 """
 
 from django.core.management.base import BaseCommand
-from django.contrib.gis.geos import Point, Polygon
-from decimal import Decimal
-import random
-
+from django.core.management import call_command
 from backend.apps.stores.models import District, Store, Item, Inventory
 
 
@@ -20,369 +24,105 @@ class Command(BaseCommand):
             action='store_true',
             help='Clear existing data before seeding',
         )
-
-    def handle(self, *args, **options):
-        if options['clear']:
-            self.stdout.write('Clearing existing data...')
-            District.objects.all().delete()
-            Store.objects.all().delete()
-            Inventory.objects.all().delete()
-            self.stdout.write(self.style.SUCCESS('Existing data cleared'))
-
-        self.stdout.write('Seeding Ho Chi Minh City data...')
-        
-        # Create districts
-        districts = self.create_districts()
-        
-        # Create stores
-        stores = self.create_stores(districts)
-        
-        # Create inventory
-        self.create_inventory(stores)
-        
-        self.stdout.write(
-            self.style.SUCCESS(
-                f'Successfully seeded data: {len(districts)} districts, '
-                f'{len(stores)} stores, and inventory items'
-            )
+        parser.add_argument(
+            '--part',
+            type=int,
+            choices=[1, 2, 3, 4],
+            help='Run specific part: 1=districts, 2=stores, 3=products, 4=inventory',
+        )
+        parser.add_argument(
+            '--districts-only',
+            action='store_true',
+            help='Seed only districts data (same as --part 1)',
+        )
+        parser.add_argument(
+            '--stores-file',
+            type=str,
+            default='stores.json',
+            help='JSON file containing store data (default: stores.json)',
         )
 
-    def create_districts(self):
-        """Create Ho Chi Minh City districts with realistic boundaries."""
-        districts_data = [
-            {
-                'name': 'District 1',
-                'code': 'D1',
-                'city': 'Ho Chi Minh City',
-                'population': 204899,
-                'area_km2': Decimal('7.73'),
-                'district_type': 'urban',
-                'avg_income': Decimal('45000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.6900, 10.7600),
-                    (106.7200, 10.7600),
-                    (106.7200, 10.8000),
-                    (106.6900, 10.8000),
-                    (106.6900, 10.7600),
-                ], srid=4326)
-            },
-            {
-                'name': 'District 3',
-                'code': 'D3',
-                'city': 'Ho Chi Minh City',
-                'population': 188945,
-                'area_km2': Decimal('4.92'),
-                'district_type': 'urban',
-                'avg_income': Decimal('42000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.6800, 10.7800),
-                    (106.7100, 10.7800),
-                    (106.7100, 10.8200),
-                    (106.6800, 10.8200),
-                    (106.6800, 10.7800),
-                ], srid=4326)
-            },
-            {
-                'name': 'Binh Thanh',
-                'code': 'BT',
-                'city': 'Ho Chi Minh City',
-                'population': 499164,
-                'area_km2': Decimal('20.76'),
-                'district_type': 'urban',
-                'avg_income': Decimal('38000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.7000, 10.8000),
-                    (106.7500, 10.8000),
-                    (106.7500, 10.8500),
-                    (106.7000, 10.8500),
-                    (106.7000, 10.8000),
-                ], srid=4326)
-            },
-            {
-                'name': 'Phu Nhuan',
-                'code': 'PN',
-                'city': 'Ho Chi Minh City',
-                'population': 163961,
-                'area_km2': Decimal('4.88'),
-                'district_type': 'urban',
-                'avg_income': Decimal('40000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.6700, 10.7900),
-                    (106.7000, 10.7900),
-                    (106.7000, 10.8300),
-                    (106.6700, 10.8300),
-                    (106.6700, 10.7900),
-                ], srid=4326)
-            },
-            {
-                'name': 'Tan Binh',
-                'code': 'TB',
-                'city': 'Ho Chi Minh City',
-                'population': 430436,
-                'area_km2': Decimal('22.38'),
-                'district_type': 'urban',
-                'avg_income': Decimal('35000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.6500, 10.7800),
-                    (106.7000, 10.7800),
-                    (106.7000, 10.8300),
-                    (106.6500, 10.8300),
-                    (106.6500, 10.7800),
-                ], srid=4326)
-            },
-            {
-                'name': 'District 7',
-                'code': 'D7',
-                'city': 'Ho Chi Minh City',
-                'population': 360155,
-                'area_km2': Decimal('35.69'),
-                'district_type': 'suburban',
-                'avg_income': Decimal('50000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.7200, 10.7200),
-                    (106.7800, 10.7200),
-                    (106.7800, 10.7800),
-                    (106.7200, 10.7800),
-                    (106.7200, 10.7200),
-                ], srid=4326)
-            },
-            {
-                'name': 'District 2',
-                'code': 'D2',
-                'city': 'Ho Chi Minh City',
-                'population': 147168,
-                'area_km2': Decimal('49.74'),
-                'district_type': 'suburban',
-                'avg_income': Decimal('55000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.7500, 10.7800),
-                    (106.8000, 10.7800),
-                    (106.8000, 10.8300),
-                    (106.7500, 10.8300),
-                    (106.7500, 10.7800),
-                ], srid=4326)
-            },
-            {
-                'name': 'Thu Duc',
-                'code': 'TD',
-                'city': 'Ho Chi Minh City',
-                'population': 592686,
-                'area_km2': Decimal('47.76'),
-                'district_type': 'suburban',
-                'avg_income': Decimal('42000000'),
-                'is_active': True,
-                'boundary': Polygon([
-                    (106.7500, 10.8300),
-                    (106.8000, 10.8300),
-                    (106.8000, 10.8800),
-                    (106.7500, 10.8800),
-                    (106.7500, 10.8300),
-                ], srid=4326)
-            }
-        ]
-
-        districts = []
-        for data in districts_data:
-            district, created = District.objects.get_or_create(
-                code=data['code'],
-                defaults=data
-            )
-            districts.append(district)
-            if created:
-                self.stdout.write(f'Created district: {district.name}')
-            else:
-                self.stdout.write(f'District already exists: {district.name}')
-
-        return districts
-
-    def create_stores(self, districts):
-        """Create convenience stores across Ho Chi Minh City."""
-        store_chains = [
-            'Circle K', 'FamilyMart', '7-Eleven', 'GS25', 'Mini Stop',
-            'VinMart+', 'Bach Hoa Xanh', 'Co.op Food', 'Satrafoods'
-        ]
+    def handle(self, *args, **options):
+        # Handle legacy --districts-only flag
+        if options['districts_only']:
+            options['part'] = 1
         
-        store_types = ['convenience', 'mini-mart', 'supermarket']
+        # Determine which parts to run
+        part = options.get('part')
+        stores_file = options.get('stores_file', 'stores.json')
+        clear = options.get('clear', False)
         
-        # Store locations across HCM City (realistic coordinates)
-        store_locations = [
-            # District 1
-            (106.7000, 10.7700, 'District 1'),
-            (106.7100, 10.7800, 'District 1'),
-            (106.7050, 10.7750, 'District 1'),
-            (106.7150, 10.7850, 'District 1'),
-            
-            # District 3
-            (106.6900, 10.7900, 'District 3'),
-            (106.7000, 10.8000, 'District 3'),
-            (106.6950, 10.7950, 'District 3'),
-            
-            # Binh Thanh
-            (106.7200, 10.8200, 'Binh Thanh'),
-            (106.7300, 10.8300, 'Binh Thanh'),
-            (106.7250, 10.8250, 'Binh Thanh'),
-            (106.7350, 10.8350, 'Binh Thanh'),
-            
-            # Phu Nhuan
-            (106.6800, 10.8000, 'Phu Nhuan'),
-            (106.6900, 10.8100, 'Phu Nhuan'),
-            (106.6850, 10.8050, 'Phu Nhuan'),
-            
-            # Tan Binh
-            (106.6700, 10.8000, 'Tan Binh'),
-            (106.6800, 10.8100, 'Tan Binh'),
-            (106.6750, 10.8050, 'Tan Binh'),
-            (106.6850, 10.8150, 'Tan Binh'),
-            
-            # District 7
-            (106.7300, 10.7300, 'District 7'),
-            (106.7400, 10.7400, 'District 7'),
-            (106.7350, 10.7350, 'District 7'),
-            (106.7450, 10.7450, 'District 7'),
-            
-            # District 2
-            (106.7600, 10.8000, 'District 2'),
-            (106.7700, 10.8100, 'District 2'),
-            (106.7650, 10.8050, 'District 2'),
-            
-            # Thu Duc
-            (106.7600, 10.8400, 'Thu Duc'),
-            (106.7700, 10.8500, 'Thu Duc'),
-            (106.7650, 10.8450, 'Thu Duc'),
-            (106.7750, 10.8550, 'Thu Duc'),
-        ]
+        if clear:
+            self.stdout.write('🗑️  Clearing existing data...')
+            if part is None or part >= 4:
+                Inventory.objects.all().delete()
+                self.stdout.write('   Cleared inventory data')
+            if part is None or part >= 3:
+                Item.objects.all().delete()
+                self.stdout.write('   Cleared item data')
+            if part is None or part >= 2:
+                Store.objects.all().delete()
+                self.stdout.write('   Cleared store data')
+            if part is None or part >= 1:
+                District.objects.all().delete()
+                self.stdout.write('   Cleared district data')
+            self.stdout.write(self.style.SUCCESS('✅ Existing data cleared'))
 
-        stores = []
-        for i, (lng, lat, district_name) in enumerate(store_locations):
-            # Find the district
-            district = next((d for d in districts if d.name == district_name), districts[0])
+        if part == 1:
+            self.stdout.write('🏛️  PART 1: Seeding districts...')
+            call_command('seed_districts', '--clear' if clear else '')
+            districts_count = District.objects.count()
+            self.stdout.write(self.style.SUCCESS(f'✅ Part 1 complete: {districts_count} districts'))
             
-            # Generate store data
-            chain_name = random.choice(store_chains)
-            # Create variety in names - some with district, some without
-            if i % 3 == 0:
-                store_name = f"{chain_name} {district_name}"
-            elif i % 3 == 1:
-                store_name = f"{chain_name}"
-            else:
-                # Add descriptive suffixes instead of numbers
-                suffixes = ['Central', 'Plaza', 'Express', 'Plus', 'Station', 'Corner']
-                store_name = f"{chain_name} {random.choice(suffixes)}"
+        elif part == 2:
+            self.stdout.write('🏪 PART 2: Seeding stores...')
+            call_command('seed_stores', f'--stores-file={stores_file}', '--clear' if clear else '')
+            stores_count = Store.objects.count()
+            self.stdout.write(self.style.SUCCESS(f'✅ Part 2 complete: {stores_count} stores'))
             
-            store_type = random.choice(store_types)
+        elif part == 3:
+            self.stdout.write('📦 PART 3: Seeding product catalog...')
+            call_command('seed_products', '--clear' if clear else '')
+            items_count = Item.objects.count()
+            self.stdout.write(self.style.SUCCESS(f'✅ Part 3 complete: {items_count} products'))
             
-            # Generate realistic address
-            street_names = ['Nguyen Hue', 'Le Loi', 'Dong Khoi', 'Pasteur', 'Vo Van Tan', 'Truong Dinh']
-            street_name = random.choice(street_names)
-            street_number = random.randint(1, 200)
+        elif part == 4:
+            self.stdout.write('📋 PART 4: Seeding inventory...')
+            call_command('seed_inventory', '--clear' if clear else '')
+            inventory_count = Inventory.objects.count()
+            self.stdout.write(self.style.SUCCESS(f'✅ Part 4 complete: {inventory_count} inventory entries'))
             
-            store_data = {
-                'name': store_name,
-                'address': f"{street_number} {street_name}, {district_name}, Ho Chi Minh City",
-                'phone': f"+84-{random.randint(28, 99)}-{random.randint(100, 999)}-{random.randint(1000, 9999)}",
-                'email': f"store{i+1}@{store_name.split()[0].lower()}.com",
-                'store_type': store_type,
-                'district': district_name,
-                'district_obj': district,
-                'city': 'Ho Chi Minh City',
-                'opening_hours': f"{random.randint(6, 8)}:00-{random.randint(21, 23)}:00",
-                'is_active': True,
-                'rating': Decimal(str(round(random.uniform(3.5, 5.0), 1))),
-                'location': Point(lng, lat, srid=4326)
-            }
+        else:
+            # Run all parts
+            self.stdout.write('🚀 Seeding all Ho Chi Minh City data...')
             
-            store, created = Store.objects.get_or_create(
-                name=store_name,
-                defaults=store_data
-            )
-            stores.append(store)
+            # Part 1: Districts
+            self.stdout.write('🏛️  PART 1: Creating districts...')
+            call_command('seed_districts')
+            districts_count = District.objects.count()
+            self.stdout.write(f'✅ Created {districts_count} districts')
             
-            if created:
-                self.stdout.write(f'Created store: {store.name}')
-            else:
-                self.stdout.write(f'Store already exists: {store.name}')
-
-        return stores
-
-    def create_inventory(self, stores):
-        """Create items and inventory relationships for all stores."""
-        # First create all the items
-        items_data = [
-            # Beverages
-            {'name': 'Coca-Cola 330ml', 'category': 'beverages', 'brand': 'Coca-Cola', 'description': 'Classic cola drink, 330ml can'},
-            {'name': 'Pepsi 330ml', 'category': 'beverages', 'brand': 'Pepsi', 'description': 'Cola drink, 330ml can'},
-            {'name': 'Red Bull 250ml', 'category': 'beverages', 'brand': 'Red Bull', 'description': 'Energy drink, 250ml can'},
-            {'name': 'Coffee 3-in-1', 'category': 'beverages', 'brand': 'Trung Nguyen', 'description': 'Instant coffee mix'},
-            {'name': 'Green Tea 500ml', 'category': 'beverages', 'brand': 'Lipton', 'description': 'Bottled green tea, 500ml'},
-            {'name': 'Orange Juice 1L', 'category': 'beverages', 'brand': 'TH True', 'description': 'Fresh orange juice, 1 liter'},
+            # Part 2: Stores 
+            self.stdout.write('🏪 PART 2: Creating stores...')
+            call_command('seed_stores', f'--stores-file={stores_file}')
+            stores_count = Store.objects.count()
+            self.stdout.write(f'✅ Created {stores_count} stores')
             
-            # Snacks
-            {'name': 'Pringles Original', 'category': 'snacks', 'brand': 'Pringles', 'description': 'Potato chips in canister'},
-            {'name': 'Lay\'s Classic', 'category': 'snacks', 'brand': 'Lay\'s', 'description': 'Classic potato chips'},
-            {'name': 'Oreo Cookies', 'category': 'snacks', 'brand': 'Oreo', 'description': 'Chocolate sandwich cookies'},
-            {'name': 'M&M\'s Chocolate', 'category': 'snacks', 'brand': 'M&M\'s', 'description': 'Chocolate candies'},
-            {'name': 'Instant Noodles', 'category': 'snacks', 'brand': 'Acecook', 'description': 'Instant ramen noodles'},
-            {'name': 'Potato Chips', 'category': 'snacks', 'brand': 'Oishi', 'description': 'Crispy potato chips'},
+            # Part 3: Product catalog
+            self.stdout.write('📦 PART 3: Creating product catalog...')
+            call_command('seed_products')
+            items_count = Item.objects.count()
+            self.stdout.write(f'✅ Created {items_count} products')
             
-            # Household
-            {'name': 'Toothpaste', 'category': 'household', 'brand': 'Colgate', 'description': 'Fluoride toothpaste'},
-            {'name': 'Shampoo 400ml', 'category': 'household', 'brand': 'Sunsilk', 'description': 'Hair shampoo, 400ml bottle'},
-            {'name': 'Soap Bar', 'category': 'household', 'brand': 'Lifebuoy', 'description': 'Antibacterial soap bar'},
-            {'name': 'Tissue Paper', 'category': 'household', 'brand': 'Tempo', 'description': 'Facial tissue paper'},
-            {'name': 'Laundry Detergent', 'category': 'household', 'brand': 'OMO', 'description': 'Laundry washing powder'},
-            {'name': 'Dish Soap', 'category': 'household', 'brand': 'Sunlight', 'description': 'Dishwashing liquid'},
+            # Part 4: Inventory
+            self.stdout.write('📋 PART 4: Creating inventory...')
+            call_command('seed_inventory')
+            inventory_count = Inventory.objects.count()
+            self.stdout.write(f'✅ Created {inventory_count} inventory entries')
             
-            # Personal Care
-            {'name': 'Deodorant', 'category': 'personal_care', 'brand': 'Rexona', 'description': 'Antiperspirant deodorant'},
-            {'name': 'Razor Blades', 'category': 'personal_care', 'brand': 'Gillette', 'description': 'Replacement razor blades'},
-            {'name': 'Face Cream', 'category': 'personal_care', 'brand': 'Nivea', 'description': 'Moisturizing face cream'},
-            {'name': 'Sunscreen SPF 50', 'category': 'personal_care', 'brand': 'Bioré', 'description': 'UV protection sunscreen'},
-            
-            # Other (Health products)
-            {'name': 'Paracetamol 500mg', 'category': 'other', 'brand': 'Hapacol', 'description': 'Pain relief medication'},
-            {'name': 'Vitamin C 1000mg', 'category': 'other', 'brand': 'DHC', 'description': 'Vitamin C supplement'},
-            {'name': 'Band-Aids', 'category': 'other', 'brand': 'Band-Aid', 'description': 'Adhesive bandages'},
-            {'name': 'Hand Sanitizer', 'category': 'other', 'brand': 'Dettol', 'description': 'Antibacterial hand sanitizer'},
-        ]
-
-        # Create Item objects
-        items = []
-        for item_data in items_data:
-            item, created = Item.objects.get_or_create(
-                name=item_data['name'],
-                defaults=item_data
-            )
-            items.append(item)
-            if created:
-                self.stdout.write(f'Created item: {item.name}')
-
-        # Create inventory relationships
-        for store in stores:
-            # Each store gets a random selection of items
-            store_items = random.sample(items, random.randint(15, 25))
-            
-            for item in store_items:
-                # Randomize availability
-                is_available = random.choice([True, True, True, False])  # 75% chance of being available
-                
-                inventory_data = {
-                    'store': store,
-                    'item': item,
-                    'is_available': is_available
-                }
-                
-                inventory, created = Inventory.objects.get_or_create(
-                    store=store,
-                    item=item,
-                    defaults=inventory_data
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f'🎉 Successfully seeded all data: {districts_count} districts, '
+                    f'{stores_count} stores, {items_count} products, {inventory_count} inventory entries'
                 )
-                
-                if created:
-                    self.stdout.write(f'Created inventory: {item.name} at {store.name}') 
+            ) 

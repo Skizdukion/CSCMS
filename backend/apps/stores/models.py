@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models as gis_models
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class District(models.Model):
@@ -11,8 +11,8 @@ class District(models.Model):
     code = models.CharField(max_length=10, unique=True, help_text="District code/abbreviation")
     
     # Geographic boundaries
-    boundary = gis_models.PolygonField(
-        help_text="Geographic boundary of the district",
+    boundary = gis_models.MultiPolygonField(
+        help_text="Geographic boundary of the district (can contain multiple polygons)",
         spatial_index=True,
         null=True,
         blank=True

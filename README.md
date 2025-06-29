@@ -101,6 +101,57 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
    PYTHONPATH=$(pwd) python backend/manage.py runserver
    ```
 
+### Seed Data
+
+The system includes a comprehensive modular seed data system to populate the database with realistic Vietnamese convenience store data.
+
+#### Seed Data Architecture
+
+The seed system is split into 4 modular parts for easier maintenance and flexibility:
+
+1. **Part 1: Districts** - Real Ho Chi Minh City districts with GeoJSON boundaries
+2. **Part 2: Stores** - Store data from JSON file with auto-district detection
+3. **Part 3: Products** - Vietnamese convenience store product catalog
+4. **Part 4: Inventory** - Random inventory relationships between stores and products
+
+#### Quick Seed (All Data)
+
+To seed all data at once:
+```bash
+# Seed everything with sample data
+PYTHONPATH=$(pwd) python backend/manage.py seed_data
+
+# Clear existing data and seed everything
+PYTHONPATH=$(pwd) python backend/manage.py seed_data --clear
+```
+
+#### Modular Seeding (Individual Parts)
+
+**Part 1: Seed Districts**
+```bash
+# Clear existing districts and re-seed
+PYTHONPATH=$(pwd) python backend/manage.py seed_districts --clear
+```
+
+**Part 2: Seed Stores**
+```bash
+
+# Clear existing stores and re-seed
+PYTHONPATH=$(pwd) python backend/manage.py seed_stores --clear
+```
+
+**Part 3: Seed Products**
+```bash
+# Clear existing products and re-seed
+PYTHONPATH=$(pwd) python backend/manage.py seed_products --clear
+```
+
+**Part 4: Seed Inventory**
+```bash
+# Clear existing inventory and re-seed
+PYTHONPATH=$(pwd) python backend/manage.py seed_inventory --clear
+```
+
 ### Frontend Setup
 
 1. Install Node.js dependencies:
