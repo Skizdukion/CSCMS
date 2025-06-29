@@ -265,7 +265,17 @@ class Command(BaseCommand):
             district = next((d for d in districts if d.name == district_name), districts[0])
             
             # Generate store data
-            store_name = f"{random.choice(store_chains)} - {district_name} #{i+1}"
+            chain_name = random.choice(store_chains)
+            # Create variety in names - some with district, some without
+            if i % 3 == 0:
+                store_name = f"{chain_name} {district_name}"
+            elif i % 3 == 1:
+                store_name = f"{chain_name}"
+            else:
+                # Add descriptive suffixes instead of numbers
+                suffixes = ['Central', 'Plaza', 'Express', 'Plus', 'Station', 'Corner']
+                store_name = f"{chain_name} {random.choice(suffixes)}"
+            
             store_type = random.choice(store_types)
             
             # Generate realistic address

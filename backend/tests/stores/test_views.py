@@ -178,7 +178,7 @@ class StoreViewSetTest(APITestCase):
     
     def test_nearby_stores(self):
         """Test finding nearby stores."""
-        url = f"{self.list_url}nearby/"
+        url = f"{self.list_url}search/"
         response = self.client.get(url, {
             'latitude': 10.8,
             'longitude': 106.7,
@@ -189,8 +189,8 @@ class StoreViewSetTest(APITestCase):
     
     def test_stores_in_district(self):
         """Test finding stores in a district."""
-        url = f"{self.list_url}in-district/"
-        response = self.client.get(url, {'district_id': self.district.id})
+        url = f"{self.list_url}search/"
+        response = self.client.get(url, {'district': str(self.district.id)})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
     
@@ -402,9 +402,9 @@ class APIErrorHandlingTest(APITestCase):
     
     def test_invalid_spatial_search(self):
         """Test invalid spatial search parameters."""
-        url = reverse('stores:store-list') + 'nearby/'
+        url = reverse('stores:store-list') + 'search/'
         response = self.client.get(url, {
-            'latitude': 100.0,  # Invalid latitude
+            'latitude': 'invalid',  # Invalid latitude
             'longitude': 106.7,
             'radius_km': 5.0
         })

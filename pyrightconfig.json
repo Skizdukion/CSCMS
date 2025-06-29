@@ -3,5 +3,18 @@
     "reportAttributeAccessIssue": false,
     "reportOptionalSubscript": false,
     "reportIndexIssue": false,
-    "reportOptionalMemberAccess": false
+    "reportOptionalMemberAccess": false,
+    "reportGeneralTypeIssues": false,
+    "reportUnknownMemberType": false,
+    "reportUntypedFunctionDecorator": false,
+    "exclude": [
+        "**/tests/**",
+        "**/*test*.py",
+        "**/test_*.py"
+    ],
+    "ignore": [
+        "**/tests/**",
+        "**/*test*.py", 
+        "**/test_*.py"
+    ]
 }

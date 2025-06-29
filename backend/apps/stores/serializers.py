@@ -192,25 +192,50 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class StoreListSerializer(serializers.ModelSerializer):
-    """Simplified serializer for store listing."""
+    """Simplified serializer for store listing with consistent fields."""
     
+    # Spatial field serialization
+    location = serializers.SerializerMethodField()
     location_geojson = serializers.SerializerMethodField()
+    
+    # Related fields
+    district_obj = DistrictSerializer(read_only=True)
     district_name = serializers.CharField(source='district_obj.name', read_only=True)
+    
+    # Computed fields
     inventory_count = serializers.SerializerMethodField()
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
     
     class Meta:
         model = Store
         fields = [
-            'id', 'name', 'address', 'store_type', 'district_name',
-            'city', 'is_active', 'rating', 'location_geojson',
-            'inventory_count'
+            'id', 'name', 'address', 'phone', 'email', 'store_type',
+            'district', 'district_obj', 'district_name', 'city',
+            'opening_hours', 'is_active', 'rating', 'location',
+            'location_geojson', 'latitude', 'longitude', 'inventory_count',
+            'created_at', 'updated_at'
         ]
+    
+    def get_location(self, obj):
+        """Return location as WKT format."""
+        if obj.location:
+            return obj.location.wkt
+        return None
     
     def get_location_geojson(self, obj):
         """Return location as GeoJSON format."""
         if obj.location:
             return json.loads(obj.location.json)
         return None
+    
+    def get_latitude(self, obj):
+        """Return latitude coordinate."""
+        return obj.latitude
+    
+    def get_longitude(self, obj):
+        """Return longitude coordinate."""
+        return obj.longitude
     
     def get_inventory_count(self, obj):
         """Return the number of inventory items."""

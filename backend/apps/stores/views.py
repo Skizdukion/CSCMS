@@ -12,6 +12,8 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
 from django.db.models import Count, Avg, Q
+from functools import reduce
+import operator
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
@@ -43,79 +45,9 @@ class StoreViewSet(viewsets.ModelViewSet):
             return StoreListSerializer
         return StoreSerializer
 
-    @extend_schema(
-        summary="Search stores by location",
-        description="Find stores within a specified radius from given coordinates",
-        parameters=[
-            OpenApiParameter(name='latitude', type=float, required=True, description='Latitude coordinate'),
-            OpenApiParameter(name='longitude', type=float, required=True, description='Longitude coordinate'),
-            OpenApiParameter(name='radius_km', type=float, required=True, description='Search radius in kilometers'),
-        ],
-        examples=[
-            OpenApiExample(
-                'Search near Ho Chi Minh City center',
-                value={'latitude': 10.8231, 'longitude': 106.6297, 'radius_km': 5.0},
-                description='Find stores within 5km of Ho Chi Minh City center'
-            ),
-        ]
-    )
-    @action(detail=False, methods=['get'], url_path='nearby')
-    def nearby_stores(self, request):
-        """Find stores within a specified radius from given coordinates."""
-        serializer = SpatialSearchSerializer(data=request.query_params)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        data = serializer.validated_data
-        user_location = Point(data['longitude'], data['latitude'], srid=4326)
-        
-        queryset = self.get_queryset().filter(
-            location__distance_lte=(user_location, D(km=data['radius_km']))
-        ).annotate(
-            distance=Distance('location', user_location)
-        ).order_by('distance')
-        
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
 
-    @extend_schema(
-        summary="Search stores in district",
-        description="Find stores within a specific district",
-        parameters=[
-            OpenApiParameter(name='district_id', type=int, description='District ID'),
-            OpenApiParameter(name='district_name', type=str, description='District name'),
-        ]
-    )
-    @action(detail=False, methods=['get'], url_path='in-district')
-    def stores_in_district(self, request):
-        """Find stores within a specific district."""
-        district_id = request.query_params.get('district_id')
-        district_name = request.query_params.get('district_name')
-        
-        queryset = self.get_queryset()
-        
-        if district_id:
-            queryset = queryset.filter(district_obj_id=district_id)
-        elif district_name:
-            queryset = queryset.filter(district_obj__name__icontains=district_name)
-        else:
-            return Response(
-                {'error': 'Either district_id or district_name must be provided'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
+
 
     @extend_schema(
         summary="Get store statistics",
@@ -165,6 +97,171 @@ class StoreViewSet(viewsets.ModelViewSet):
                 {'error': 'Store not found'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+    @extend_schema(
+        summary="Search stores",
+        description="Search stores with multiple filters including location, inventory, and other criteria",
+        parameters=[
+            OpenApiParameter(name='search', type=str, description='Search by store name, address, or city'),
+            OpenApiParameter(name='district', type=str, description='Filter by district ID or name'),
+            OpenApiParameter(name='store_type', type=str, description='Filter by store type'),
+            OpenApiParameter(name='is_active', type=bool, description='Filter by active status'),
+            OpenApiParameter(name='inventory_item', type=str, description='Filter stores by specific inventory item'),
+            OpenApiParameter(name='latitude', type=float, description='Latitude for location-based search'),
+            OpenApiParameter(name='longitude', type=float, description='Longitude for location-based search'),
+            OpenApiParameter(name='radius_km', type=float, description='Search radius in kilometers (requires lat/lng)'),
+            OpenApiParameter(name='sort_by_distance', type=bool, description='Sort results by distance (requires lat/lng)'),
+            OpenApiParameter(name='page', type=int, description='Page number'),
+            OpenApiParameter(name='limit', type=int, description='Number of results per page'),
+        ],
+        examples=[
+            OpenApiExample(
+                'Search with all filters',
+                value={
+                    'search': 'convenience',
+                    'district': '1',
+                    'store_type': 'convenience',
+                    'is_active': True,
+                    'inventory_item': 'Coca Cola',
+                    'latitude': 10.8231,
+                    'longitude': 106.6297,
+                    'radius_km': 5.0,
+                    'sort_by_distance': True
+                },
+                description='Search with location, inventory, and text filters'
+            ),
+        ]
+    )
+    @action(detail=False, methods=['get'], url_path='search')
+    def search(self, request):
+        """Advanced search with multiple filters including location and inventory."""
+        # Get search parameters
+        search_text = request.query_params.get('search', '').strip()
+        district = request.query_params.get('district', '').strip()
+        store_type = request.query_params.get('store_type', '').strip()
+        is_active = request.query_params.get('is_active', '').strip()
+        inventory_item = request.query_params.get('inventory_item', '').strip()
+        latitude = request.query_params.get('latitude', '').strip()
+        longitude = request.query_params.get('longitude', '').strip()
+        radius_km = request.query_params.get('radius_km', '').strip()
+        sort_by_distance = request.query_params.get('sort_by_distance', '').strip()
+
+        # Start with base queryset
+        queryset = self.get_queryset()
+
+        # Apply text search filter
+        if search_text:
+            search_conditions = [
+                Q(name__icontains=search_text),
+                Q(address__icontains=search_text),
+                Q(city__icontains=search_text),
+                Q(district__icontains=search_text)
+            ]
+            search_q = reduce(operator.or_, search_conditions)
+            queryset = queryset.filter(search_q)
+
+        # Apply district filter
+        if district:
+            # Try to filter by district ID first, then by name
+            try:
+                district_id = int(district)
+                queryset = queryset.filter(district_obj_id=district_id)
+            except ValueError:
+                queryset = queryset.filter(
+                    Q(district_obj__name__icontains=district) |
+                    Q(district__icontains=district)
+                )
+
+        # Apply store type filter
+        if store_type:
+            queryset = queryset.filter(store_type=store_type)
+
+        # Apply active status filter
+        if is_active:
+            is_active_bool = is_active.lower() in ['true', '1', 'yes']
+            queryset = queryset.filter(is_active=is_active_bool)
+
+        # Apply inventory filter
+        if inventory_item:
+            # Filter stores that have the specific inventory item available
+            queryset = queryset.filter(
+                inventories__item_name__icontains=inventory_item,
+                inventories__is_available=True
+            ).distinct()
+
+        # Apply location-based filtering and sorting
+        if latitude and longitude:
+            try:
+                lat = float(latitude)
+                lng = float(longitude)
+                user_location = Point(lng, lat, srid=4326)
+
+                # Add distance annotation for sorting
+                queryset = queryset.annotate(
+                    distance=Distance('location', user_location)
+                )
+
+                # Apply radius filter if provided
+                if radius_km:
+                    radius = float(radius_km)
+                    queryset = queryset.filter(
+                        location__distance_lte=(user_location, D(km=radius))
+                    )
+
+                # Sort by distance if requested or if no radius is specified (automatic nearby sorting)
+                if sort_by_distance and sort_by_distance.lower() in ['true', '1', 'yes']:
+                    queryset = queryset.order_by('distance')
+
+            except (ValueError, TypeError) as e:
+                return Response(
+                    {'error': f'Invalid latitude/longitude values: {str(e)}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        # Apply default ordering if no distance sorting
+        if not (latitude and longitude and sort_by_distance and sort_by_distance.lower() in ['true', '1', 'yes']):
+            queryset = queryset.order_by('name')
+
+        # Paginate results
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response_data = self.get_paginated_response(serializer.data)
+            
+            # Add search metadata to response
+            search_metadata = {
+                'search_text': search_text,
+                'filters_applied': {
+                    'district': district,
+                    'store_type': store_type,
+                    'is_active': is_active,
+                    'inventory_item': inventory_item,
+                    'location_search': bool(latitude and longitude),
+                    'radius_km': radius_km if radius_km else None,
+                    'sort_by_distance': sort_by_distance
+                }
+            }
+            response_data.data['search_metadata'] = search_metadata
+            return response_data
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'results': serializer.data,
+            'search_metadata': {
+                'search_text': search_text,
+                'filters_applied': {
+                    'district': district,
+                    'store_type': store_type,
+                    'is_active': is_active,
+                    'inventory_item': inventory_item,
+                    'location_search': bool(latitude and longitude),
+                    'radius_km': radius_km if radius_km else None,
+                    'sort_by_distance': sort_by_distance
+                }
+            }
+        })
+
+
 
 class InventoryViewSet(viewsets.ModelViewSet):
     """
@@ -284,6 +381,22 @@ class InventoryViewSet(viewsets.ModelViewSet):
         }
         
         return Response(stats)
+
+    @extend_schema(
+        summary="Get available inventory items",
+        description="Get list of available inventory items for filtering",
+        responses={200: dict}
+    )
+    @action(detail=False, methods=['get'], url_path='available-items')
+    def available_items(self, request):
+        """Get list of available inventory items."""
+        items = self.get_queryset().filter(
+            is_available=True
+        ).values_list('item_name', flat=True).distinct().order_by('item_name')
+        
+        return Response({
+            'items': list(items)
+        })
 
 class DistrictViewSet(viewsets.ModelViewSet):
     """

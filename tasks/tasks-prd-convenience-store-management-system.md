@@ -51,16 +51,17 @@
 - `frontend/src/pages/Reports.css` - Styles for the reports page
 - `frontend/src/components/Map/StoreMap.jsx` - Interactive map component with Leaflet.js
 - `frontend/src/components/Map/StoreMap.jsx` - Unit tests for map component
-- `frontend/src/components/Store/StoreForm.jsx` - Form component for adding/editing stores
-- `frontend/src/components/Store/StoreForm.jsx` - Unit tests for store form
+- `frontend/src/components/Store/StoreForm.tsx` - Form component for adding/editing stores
+- `frontend/src/components/Store/StoreForm.css` - Styles for the store form component
+- `frontend/src/types/index.ts` - TypeScript interfaces for Store, District, and form data
 - `frontend/src/components/Store/StoreList.jsx` - Store listing and search component
 - `frontend/src/components/Store/StoreList.jsx` - Unit tests for store list
 - `frontend/src/components/Inventory/InventoryForm.jsx` - Inventory management form
 - `frontend/src/components/Inventory/InventoryForm.jsx` - Unit tests for inventory form
 - `frontend/src/components/Reports/StatisticsReport.jsx` - Statistics and reporting component
 - `frontend/src/components/Reports/StatisticsReport.jsx` - Unit tests for reports
-- `frontend/src/services/api.js` - API service functions for backend communication
-- `frontend/src/services/api.js` - Unit tests for API services
+- `frontend/src/services/api.ts` - API service functions for backend communication with TypeScript support
+- `frontend/src/services/api.ts` - Unit tests for API services
 - `frontend/src/utils/constants.js` - Application constants and configuration
 - `backend/tests/stores/test_views.py` - API view tests for the stores app
 - `backend/tests/stores/test_serializers.py` - Serializer tests for the stores app
@@ -69,6 +70,7 @@
 - `backend/apps/stores/fixtures/hcm_districts.json` - District data for Ho Chi Minh City
 - `backend/apps/stores/fixtures/hcm_stores.json` - Store data for Ho Chi Minh City convenience stores
 - `backend/apps/stores/fixtures/hcm_inventory.json` - Inventory data for stores
+- `backend/tests/stores/test_advanced_search.py` - Unit tests for advanced search functionality including location-based search and inventory filtering
 
 ### Notes
 
@@ -114,18 +116,18 @@
   - [x] 2.9 Write comprehensive unit tests for all API endpoints
   - [x] 2.10 Add error handling and validation for spatial data
   - [x] 2.11 Seed data with Ho Chi Minh City convenience stores and districts
+  - [x] 2.12 Comprehensive unit test with database test
 
 - [ ] 3.0 Frontend User Interface
   - [x] 3.1 Set up React application with routing and state management
-  - [ ] 3.2 Create main navigation and layout components
-  - [ ] 3.3 Build StoreForm component for adding/editing stores
-  - [ ] 3.4 Implement StoreList component with search and filtering
+  - [x] 3.2 Create main navigation and layout components
+  - [ ] 3.3 Complete store management page (with API communication)
+    - [x] 3.3.1 Add new store and edit store feature (create and edit form, form validation, api submitting)
+    - [x] 3.3.2 Search store feature (search by name, advanced option for filter district, available inventory, store type, is active, sort by near a picked location)
   - [ ] 3.5 Create InventoryForm component for inventory management
-  - [ ] 3.6 Add form validation and error handling
   - [ ] 3.7 Implement responsive design for desktop and tablet
-  - [ ] 3.8 Create API service layer for backend communication
   - [ ] 3.9 Add loading states and user feedback
-  - [ ] 3.10 Write unit tests for all React components
+  - [ ] 3.10 Write e2e test for main feature with test db (using playwright)
 
 - [ ] 4.0 Map Integration and Spatial Features
   - [ ] 4.1 Set up Leaflet.js map component with OpenStreetMap tiles

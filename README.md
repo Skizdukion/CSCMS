@@ -79,26 +79,6 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
    python -c "import psycopg2; print('psycopg2:', psycopg2.__version__)"
    ```
 
-### Using Environment Activation Scripts
-
-For convenience, we provide activation scripts that set up the environment automatically:
-
-**Linux/macOS:**
-```bash
-source scripts/activate_backend.sh
-```
-
-**Windows:**
-```cmd
-scripts\activate_backend.bat
-```
-
-These scripts will:
-- Activate the conda environment
-- Set the correct PYTHONPATH
-- Configure Django settings
-- Display available commands
-
 ### Backend Development
 
 1. **Test Django configuration:**
@@ -180,11 +160,243 @@ These scripts will:
 - Database runs on: localhost:5432
 - Redis runs on: localhost:6379
 
+## Production Deployment
+
+### Prerequisites for Production
+
+- Docker and Docker Compose
+- Python 3.9+ with conda environment
+- Node.js 16+ for frontend builds
+- PostgreSQL with PostGIS extension
+- Redis server
+- Web server (Nginx recommended)
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```bash
+# Database Configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/convenience_store_db
+DATABASE_HOST=localhost
+DATABASE_NAME=convenience_store_db
+DATABASE_USER=your_db_user
+DATABASE_PASSWORD=your_db_password
+DATABASE_PORT=5432
+
+# Redis Configuration
+REDIS_URL=redis://localhost:6379/0
+
+# Django Settings
+SECRET_KEY=your-super-secret-key-here
+DEBUG=False
+ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,localhost
+
+# Frontend Configuration
+REACT_APP_API_URL=https://yourdomain.com/api
+```
+
+### Backend Production Setup
+
+1. **Activate conda environment and install production dependencies:**
+   ```bash
+   conda activate cscms-backend
+   pip install gunicorn whitenoise
+   ```
+
+2. **Configure production settings:**
+   ```bash
+   # Create production settings file
+   cp backend/settings.py backend/settings.py
+   ```
+
+3. **Run database migrations:**
+   ```bash
+   PYTHONPATH=$(pwd) python backend/manage.py migrate --settings=backend.settings
+   ```
+
+4. **Collect static files:**
+   ```bash
+   PYTHONPATH=$(pwd) python backend/manage.py collectstatic --noinput --settings=backend.settings
+   ```
+
+5. **Load initial data (if needed):**
+   ```bash
+   PYTHONPATH=$(pwd) python backend/manage.py seed_data --settings=backend.settings
+   ```
+
+6. **Start production server with Gunicorn:**
+   ```bash
+   # Single worker (for testing)
+   PYTHONPATH=$(pwd) gunicorn --bind 0.0.0.0:8000 --chdir backend backend.wsgi:application
+
+   # Multiple workers (recommended for production)
+   PYTHONPATH=$(pwd) gunicorn --bind 0.0.0.0:8000 --workers 3 --worker-class gevent --worker-connections 1000 --chdir backend backend.wsgi:application
+
+   # With process management (recommended)
+   PYTHONPATH=$(pwd) gunicorn --bind 0.0.0.0:8000 --workers 3 --worker-class gevent --worker-connections 1000 --chdir backend --daemon --pid /var/run/gunicorn.pid --log-file /var/log/gunicorn.log backend.wsgi:application
+   ```
+
+### Frontend Production Setup
+
+1. **Install dependencies and build:**
+   ```bash
+   cd frontend
+   npm ci --production
+   npm run build
+   ```
+
+2. **Serve with a web server (Nginx example):**
+   ```nginx
+   server {
+       listen 80;
+       server_name yourdomain.com;
+       
+       # Frontend static files
+       location / {
+           root /path/to/your/project/frontend/build;
+           try_files $uri $uri/ /index.html;
+       }
+       
+       # Backend API
+       location /api/ {
+           proxy_pass http://localhost:8000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+       
+       # Django admin
+       location /admin/ {
+           proxy_pass http://localhost:8000;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+### Docker Production Setup
+
+1. **Start all services:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up -d
+   ```
+
+2. **Run migrations in production container:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml exec backend python manage.py migrate
+   docker-compose -f docker-compose.prod.yml exec backend python manage.py collectstatic --noinput
+   ```
+
+### Production Monitoring and Maintenance
+
+1. **Check application logs:**
+   ```bash
+   # Gunicorn logs
+   tail -f /var/log/gunicorn.log
+   
+   # Django application logs
+   tail -f /var/log/django.log
+   
+   # Docker logs
+   docker-compose logs -f backend
+   docker-compose logs -f frontend
+   ```
+
+2. **Database backup:**
+   ```bash
+   # Create backup
+   docker exec convenience_store_db pg_dump -U postgres convenience_store_db > backup_$(date +%Y%m%d_%H%M%S).sql
+   
+   # Restore backup
+   docker exec -i convenience_store_db psql -U postgres convenience_store_db < backup.sql
+   ```
+
+3. **Health checks:**
+   ```bash
+   # Check backend API health
+   curl https://yourdomain.com/api/stores/
+
+   # Check database connection
+   docker exec convenience_store_db psql -U postgres -d convenience_store_db -c "SELECT PostGIS_Version();"
+   
+   # Check Redis connection
+   docker exec convenience_store_redis redis-cli ping
+   ```
+
+### Performance Optimization
+
+1. **Enable Django caching:**
+   ```python
+   # In settings_prod.py
+   CACHES = {
+       'default': {
+           'BACKEND': 'django_redis.cache.RedisCache',
+           'LOCATION': 'redis://localhost:6379/1',
+           'OPTIONS': {
+               'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+           }
+       }
+   }
+   ```
+
+2. **Optimize database queries:**
+   ```bash
+   # Enable query logging in development to identify slow queries
+   PYTHONPATH=$(pwd) python backend/manage.py shell
+   >>> from django.db import connection
+   >>> print(connection.queries)
+   ```
+
+3. **Configure spatial indexes:**
+   ```bash
+   # Spatial indexes are automatically created by PostGIS for GeoDjango fields
+   # Verify indexes exist:
+   docker exec convenience_store_db psql -U postgres -d convenience_store_db -c "\d+ stores_store;"
+   ```
+
+### Security Considerations
+
+1. **HTTPS Setup:** Always use HTTPS in production with SSL certificates
+2. **CORS Configuration:** Configure CORS settings for your domain
+3. **Database Security:** Use strong passwords and limit database access
+4. **Environment Variables:** Never commit sensitive data to version control
+5. **Static Files:** Serve static files through a CDN or web server, not Django
+6. **Backup Strategy:** Implement regular automated backups
+7. **Monitoring:** Set up application monitoring and error tracking
+
 ## Testing
 
-- Backend tests: `cd backend && PYTHONPATH=$(pwd)/.. python manage.py test`
-- Frontend tests: `cd frontend && npm test`
-- Django configuration test: `PYTHONPATH=$(pwd) python backend/test_django_config.py`
+### Prerequisites for Testing
+
+Before running tests, ensure:
+1. PostgreSQL database with PostGIS is running: `docker-compose up -d db`
+2. Backend conda environment is activated: `conda activate cscms-backend`
+3. All dependencies are installed: `pip install -r backend/requirements.txt`
+
+### Backend Test Suite
+
+The backend includes comprehensive test coverage with 119+ tests across different categories:
+
+#### Running All Tests
+
+**Using the test runner script (Recommended)**
+```bash
+conda activate cscms-backend && PYTHONPATH=$(pwd) python backend/test_runner.py
+```
+
+#### Running Specific Test Categories
+
+**1. Model Tests (Database models, spatial fields, validation)**
+```bash
+cd backend
+conda activate cscms-backend
+export PYTHONPATH=/home/$USER/CSCMS:$PYTHONPATH
+python manage.py test tests.stores.tests --settings=test_settings
+```
 
 ## Environment Management
 
