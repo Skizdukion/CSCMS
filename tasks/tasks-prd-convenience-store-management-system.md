@@ -144,5 +144,3 @@
   - [x] 5.1 Fix search box to be strech horizontal
   - [x] 5.2 Allow to view all inventory in a store by Inventory button in store card
   - [x] 5.3 Remove inventory summary and reports & analytic page & main header
-
-- [ ] 6.0 E2E test case with Playwright
