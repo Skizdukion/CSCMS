@@ -4,6 +4,25 @@ import { storeApi, itemApi } from '../../services/api';
 import SearchableSelect from './SearchableSelect';
 import './InventoryForm.css';
 
+// Helper function to format store type names for display
+const formatStoreTypeName = (type: string): string => {
+  const typeMap: { [key: string]: string } = {
+    '7-eleven': '7-Eleven',
+    'satrafoods': 'Satrafoods',
+    'familymart': 'FamilyMart',
+    'ministop': 'MINISTOP',
+    'bach-hoa-xanh': 'Bách hóa XANH',
+    'gs25': 'GS25',
+    'circle-k': 'Circle K',
+    'winmart': 'WinMart',
+    'coopxtra': 'Co.opXtra',
+    'other': 'Other',
+    'unknown': 'Unknown'
+  };
+  
+  return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 interface InventoryFormProps {
   initialData?: Inventory;
   onSubmit: (formData: InventoryFormData) => void;
@@ -162,6 +181,8 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
     }
   };
 
+
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -217,7 +238,7 @@ const InventoryForm: React.FC<InventoryFormProps> = ({
                 id: store.id!,
                 name: store.name,
                 subtitle: store.address,
-                description: `${store.store_type} • ${store.city}`
+                                      description: `${formatStoreTypeName(store.store_type)} • ${store.city}`
               }))}
               selectedId={formData.store_id}
               onSelect={(option) => handleStoreSelect(option ? stores.find(s => s.id === option.id) || null : null)}

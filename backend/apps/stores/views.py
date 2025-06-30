@@ -698,6 +698,154 @@ class DistrictViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class AnalyticsView(APIView):
+    """
+    API endpoint for comprehensive analytics data.
+    
+    Provides all analytics calculations in a single endpoint for better performance.
+    """
+    
+    @extend_schema(
+        summary="Get comprehensive analytics data",
+        description="Get comprehensive analytics including stores, districts, and inventory statistics",
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'totalStores': {'type': 'integer', 'description': 'Total number of stores'},
+                    'activeStores': {'type': 'integer', 'description': 'Number of active stores'},
+                    'inactiveStores': {'type': 'integer', 'description': 'Number of inactive stores'},
+                    'totalDistricts': {'type': 'integer', 'description': 'Total number of districts'},
+                    'totalInventoryItems': {'type': 'integer', 'description': 'Total inventory items'},
+                    'availableInventoryItems': {'type': 'integer', 'description': 'Available inventory items'},
+                    'unavailableInventoryItems': {'type': 'integer', 'description': 'Unavailable inventory items'},
+                    'storesByDistrict': {'type': 'object', 'description': 'Stores count by district'},
+                    'storesByType': {'type': 'object', 'description': 'Stores count by type/brand'},
+                    'averageStoresPerDistrict': {'type': 'number', 'description': 'Average stores per district'},
+                    'topDistricts': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'name': {'type': 'string'},
+                                'count': {'type': 'integer'}
+                            }
+                        },
+                        'description': 'Top 5 districts by store count'
+                    },
+                    'inventoryAvailabilityRate': {'type': 'number', 'description': 'Inventory availability percentage'},
+                    'topStoreTypes': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'type': {'type': 'string'},
+                                'count': {'type': 'integer'},
+                                'percentage': {'type': 'number'}
+                            }
+                        },
+                        'description': 'Top store types/brands with counts and percentages'
+                    },
+                    'inventoryByCategory': {'type': 'object', 'description': 'Inventory items count by category'},
+                    'totalItems': {'type': 'integer', 'description': 'Total unique items in catalog'},
+                    'averageInventoryPerStore': {'type': 'number', 'description': 'Average inventory items per store'},
+                }
+            }
+        }
+    )
+    def get(self, request):
+        """Get comprehensive analytics data."""
+        try:
+            # Get basic counts using efficient queries
+            total_stores = Store.objects.count()
+            active_stores = Store.objects.filter(is_active=True).count()
+            inactive_stores = total_stores - active_stores
+            total_districts = District.objects.count()
+            total_inventory_items = Inventory.objects.count()
+            available_inventory_items = Inventory.objects.filter(is_available=True).count()
+            unavailable_inventory_items = total_inventory_items - available_inventory_items
+            total_items = Item.objects.count()
+            
+            # Stores by district - use database aggregation
+            stores_by_district_raw = Store.objects.values('district').annotate(
+                count=Count('id')
+            ).order_by('-count')
+            
+            stores_by_district = {}
+            for item in stores_by_district_raw:
+                district_name = item['district'] or 'Unknown'
+                stores_by_district[district_name] = item['count']
+            
+            # Stores by type/brand - use database aggregation
+            stores_by_type_raw = Store.objects.values('store_type').annotate(
+                count=Count('id')
+            ).order_by('-count')
+            
+            stores_by_type = {}
+            for item in stores_by_type_raw:
+                store_type = item['store_type'] or 'unknown'
+                stores_by_type[store_type] = item['count']
+            
+            # Top districts (top 5)
+            top_districts = [
+                {'name': district, 'count': count}
+                for district, count in sorted(stores_by_district.items(), key=lambda x: x[1], reverse=True)[:5]
+            ]
+            
+            # Top store types with percentages
+            top_store_types = []
+            for store_type, count in sorted(stores_by_type.items(), key=lambda x: x[1], reverse=True):
+                percentage = (count / total_stores * 100) if total_stores > 0 else 0
+                top_store_types.append({
+                    'type': store_type,
+                    'count': count,
+                    'percentage': round(percentage, 1)
+                })
+            
+            # Inventory by category - use database aggregation through join
+            inventory_by_category_raw = Inventory.objects.select_related('item').values(
+                'item__category'
+            ).annotate(count=Count('id')).order_by('-count')
+            
+            inventory_by_category = {}
+            for item in inventory_by_category_raw:
+                category = item['item__category'] or 'other'
+                inventory_by_category[category] = item['count']
+            
+            # Calculate rates and averages
+            average_stores_per_district = total_stores / total_districts if total_districts > 0 else 0
+            inventory_availability_rate = (available_inventory_items / total_inventory_items * 100) if total_inventory_items > 0 else 0
+            average_inventory_per_store = total_inventory_items / total_stores if total_stores > 0 else 0
+            
+            # Prepare response data
+            analytics_data = {
+                'totalStores': total_stores,
+                'activeStores': active_stores,
+                'inactiveStores': inactive_stores,
+                'totalDistricts': total_districts,
+                'totalInventoryItems': total_inventory_items,
+                'availableInventoryItems': available_inventory_items,
+                'unavailableInventoryItems': unavailable_inventory_items,
+                'storesByDistrict': stores_by_district,
+                'storesByType': stores_by_type,
+                'averageStoresPerDistrict': round(average_stores_per_district, 2),
+                'topDistricts': top_districts,
+                'inventoryAvailabilityRate': round(inventory_availability_rate, 1),
+                'topStoreTypes': top_store_types,
+                'inventoryByCategory': inventory_by_category,
+                'totalItems': total_items,
+                'averageInventoryPerStore': round(average_inventory_per_store, 1),
+            }
+            
+            return Response(analytics_data)
+            
+        except Exception as e:
+            return Response(
+                {'error': f'Failed to fetch analytics data: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 class StatisticsView(APIView):
     """Placeholder view for statistics - to be implemented"""
     def get(self, request):

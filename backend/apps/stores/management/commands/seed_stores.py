@@ -19,6 +19,32 @@ from .seed_utils import (
 )
 
 
+def detect_store_type_from_name(name):
+    """Detect store type from store name based on brand patterns."""
+    name_lower = name.lower()
+    
+    if name.startswith('7-Eleven') or '7-eleven' in name_lower:
+        return '7-eleven'
+    elif name.startswith('MINISTOP') or 'ministop' in name_lower:
+        return 'ministop'
+    elif name.startswith('WinMart') or name.startswith('WIN ') or 'winmart' in name_lower:
+        return 'winmart'
+    elif name.startswith('Circle K') or 'circle k' in name_lower:
+        return 'circle-k'
+    elif name.startswith('FamilyMart') or 'familymart' in name_lower:
+        return 'familymart'
+    elif name.startswith('GS25') or 'gs25' in name_lower:
+        return 'gs25'
+    elif name.startswith('Bách hóa XANH') or name.startswith('Bách Hóa Xanh') or 'bách hóa xanh' in name_lower:
+        return 'bach-hoa-xanh'
+    elif name.startswith('Co.opXtra') or 'co.opxtra' in name_lower or 'coopxtra' in name_lower:
+        return 'coopxtra'
+    elif name.startswith('Satrafoods') or 'satrafoods' in name_lower:
+        return 'satrafoods'
+    else:
+        return 'other'
+
+
 class Command(BaseCommand):
     help = 'Seed the database with stores from JSON file'
 
@@ -71,7 +97,6 @@ class Command(BaseCommand):
             return []
         
         stores = []
-        store_types = ['convenience']
         
         for i, store_data in enumerate(stores_data):
             try:
@@ -97,8 +122,8 @@ class Command(BaseCommand):
                 # Generate address
                 address = generate_address_from_coordinates(longitude, latitude, district.name)
                 
-                # Optional fields with defaults
-                store_type = store_data.get('type', random.choice(store_types))
+                # Auto-detect store type from name, or use provided type
+                store_type = store_data.get('type', detect_store_type_from_name(name))
                 phone = store_data.get('phone', f"+84-{random.randint(28, 99)}-{random.randint(100, 999)}-{random.randint(1000, 9999)}")
                 email = store_data.get('email', f"store{i+1}@{name.split()[0].lower()}.com")
                 opening_hours = store_data.get('opening_hours', f"{random.randint(6, 8)}:00-{random.randint(21, 23)}:00")
@@ -128,7 +153,7 @@ class Command(BaseCommand):
                 stores.append(store)
                 
                 if created:
-                    self.stdout.write(f'Created store: {store.name} in {district.name}')
+                    self.stdout.write(f'Created store: {store.name} ({store_type}) in {district.name}')
                 else:
                     self.stdout.write(f'Store already exists: {store.name}')
                     
@@ -148,7 +173,6 @@ class Command(BaseCommand):
                 "name": "FamilyMart Nguyen Hue",
                 "longitude": 106.7020,
                 "latitude": 10.7770,
-                "type": "convenience",
                 "phone": "+84-28-123-4567",
                 "opening_hours": "06:00-23:00",
                 "rating": 4.5
@@ -156,21 +180,18 @@ class Command(BaseCommand):
             {
                 "name": "Circle K District 3",
                 "longitude": 106.6868,
-                "latitude": 10.7869,
-                "type": "convenience"
+                "latitude": 10.7869
             },
             {
                 "name": "7-Eleven Phu My Hung",
                 "longitude": 106.7200,
                 "latitude": 10.7320,
-                "type": "convenience",
                 "email": "store@7eleven.vn"
             },
             {
-                "name": "Vinmart Go Vap",
+                "name": "WinMart Go Vap",
                 "longitude": 106.6650,
                 "latitude": 10.8380,
-                "type": "mini-mart",
                 "is_active": True
             }
         ]

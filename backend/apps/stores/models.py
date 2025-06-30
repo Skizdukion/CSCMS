@@ -127,14 +127,19 @@ class Store(models.Model):
     store_type = models.CharField(
         max_length=50,
         choices=[
-            ('convenience', 'Convenience Store'),
-            ('gas_station', 'Gas Station'),
-            ('supermarket', 'Supermarket'),
-            ('pharmacy', 'Pharmacy'),
+            ('7-eleven', '7-Eleven'),
+            ('satrafoods', 'Satrafoods'),
+            ('familymart', 'FamilyMart'),
+            ('ministop', 'MINISTOP'),
+            ('bach-hoa-xanh', 'Bách hóa XANH'),
+            ('gs25', 'GS25'),
+            ('circle-k', 'Circle K'),
+            ('winmart', 'WinMart'),
+            ('coopxtra', 'Co.opXtra'),
             ('other', 'Other')
         ],
-        default='convenience',
-        help_text="Type of store"
+        default='other',
+        help_text="Store brand/type"
     )
     
     district = models.CharField(max_length=100, blank=True, null=True, help_text="District name")

@@ -277,9 +277,46 @@ export const itemApi = {
 
 // District API functions
 export const districtApi = {
-  // Get all districts
-  getDistricts: async (): Promise<ApiResponse<{ results: District[]; count: number; next: string | null; previous: string | null }>> => {
-    return apiRequest<{ results: District[]; count: number; next: string | null; previous: string | null }>('/districts/');
+  // Get all districts with optional search parameters
+  getDistricts: async (params?: {
+    search?: string;
+    district_type?: string;
+    city?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{ results: District[]; count: number; next: string | null; previous: string | null }>> => {
+    const queryParams = new URLSearchParams();
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.district_type) queryParams.append('district_type', params.district_type);
+    if (params?.city) queryParams.append('city', params.city);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/districts/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<{ results: District[]; count: number; next: string | null; previous: string | null }>(endpoint);
+  },
+
+  // Search districts using the dedicated search endpoint
+  searchDistricts: async (params: {
+    district_name?: string;
+    district_type?: string;
+    district_id?: number;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{ results: District[]; count: number; next: string | null; previous: string | null }>> => {
+    const queryParams = new URLSearchParams();
+    if (params.district_name) queryParams.append('district_name', params.district_name);
+    if (params.district_type) queryParams.append('district_type', params.district_type);
+    if (params.district_id) queryParams.append('district_id', params.district_id.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    
+    const queryString = queryParams.toString();
+    const endpoint = `/districts/search/${queryString ? `?${queryString}` : ''}`;
+    
+    return apiRequest<{ results: District[]; count: number; next: string | null; previous: string | null }>(endpoint);
   },
 
   // Get district by ID
@@ -416,8 +453,51 @@ export const inventoryApi = {
   },
 };
 
+// Analytics API functions
+export const analyticsApi = {
+  // Get comprehensive analytics data
+  getAnalytics: async (): Promise<ApiResponse<{
+    totalStores: number;
+    activeStores: number;
+    inactiveStores: number;
+    totalDistricts: number;
+    totalInventoryItems: number;
+    availableInventoryItems: number;
+    unavailableInventoryItems: number;
+    storesByDistrict: { [key: string]: number };
+    storesByType: { [key: string]: number };
+    averageStoresPerDistrict: number;
+    topDistricts: Array<{ name: string; count: number }>;
+    inventoryAvailabilityRate: number;
+    topStoreTypes: Array<{ type: string; count: number; percentage: number }>;
+    inventoryByCategory: { [key: string]: number };
+    totalItems: number;
+    averageInventoryPerStore: number;
+  }>> => {
+    return apiRequest<{
+      totalStores: number;
+      activeStores: number;
+      inactiveStores: number;
+      totalDistricts: number;
+      totalInventoryItems: number;
+      availableInventoryItems: number;
+      unavailableInventoryItems: number;
+      storesByDistrict: { [key: string]: number };
+      storesByType: { [key: string]: number };
+      averageStoresPerDistrict: number;
+      topDistricts: Array<{ name: string; count: number }>;
+      inventoryAvailabilityRate: number;
+      topStoreTypes: Array<{ type: string; count: number; percentage: number }>;
+      inventoryByCategory: { [key: string]: number };
+      totalItems: number;
+      averageInventoryPerStore: number;
+    }>('/analytics/');
+  },
+};
+
 // Export individual functions for convenience
 export const { getStores, getStore, createStore, updateStore, deleteStore, searchStores } = storeApi;
 export const { getItems, getItem, createItem, updateItem, deleteItem, searchItems } = itemApi;
 export const { getDistricts, getDistrict } = districtApi;
-export const { getInventory, getInventoryItem, createInventoryItem, updateInventoryItem, deleteInventoryItem, searchInventory, searchNearbyInventory, getAvailableItems } = inventoryApi; 
+export const { getInventory, getInventoryItem, createInventoryItem, updateInventoryItem, deleteInventoryItem, searchInventory, searchNearbyInventory, getAvailableItems } = inventoryApi;
+export const { getAnalytics } = analyticsApi; 

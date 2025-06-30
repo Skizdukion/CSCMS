@@ -32,7 +32,7 @@ const StoreForm: React.FC<StoreFormProps> = ({
     email: '',
     latitude: '',
     longitude: '',
-    store_type: 'convenience',
+    store_type: 'other',
     district: '',
     city: 'Ho Chi Minh City',
     opening_hours: '',
@@ -57,7 +57,7 @@ const StoreForm: React.FC<StoreFormProps> = ({
         email: store.email || '',
         latitude: lat?.toString() || '',
         longitude: lng?.toString() || '',
-        store_type: store.store_type || 'convenience',
+        store_type: store.store_type || 'other',
         district: store.district || '',
         city: store.city || 'Ho Chi Minh City',
         opening_hours: store.opening_hours || '',
@@ -196,10 +196,15 @@ const StoreForm: React.FC<StoreFormProps> = ({
   };
 
   const storeTypeOptions = [
-    { value: 'convenience', label: 'Convenience Store' },
-    { value: 'gas_station', label: 'Gas Station' },
-    { value: 'supermarket', label: 'Supermarket' },
-    { value: 'pharmacy', label: 'Pharmacy' },
+    { value: '7-eleven', label: '7-Eleven' },
+    { value: 'satrafoods', label: 'Satrafoods' },
+    { value: 'familymart', label: 'FamilyMart' },
+    { value: 'ministop', label: 'MINISTOP' },
+    { value: 'bach-hoa-xanh', label: 'Bách hóa XANH' },
+    { value: 'gs25', label: 'GS25' },
+    { value: 'circle-k', label: 'Circle K' },
+    { value: 'winmart', label: 'WinMart' },
+    { value: 'coopxtra', label: 'Co.opXtra' },
     { value: 'other', label: 'Other' }
   ];
 
@@ -384,7 +389,7 @@ const StoreForm: React.FC<StoreFormProps> = ({
           
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="store_type">Store Type</label>
+                              <label htmlFor="store_type">Store Brand</label>
               <select
                 id="store_type"
                 name="store_type"

@@ -3,7 +3,28 @@ import { Store, District, StoreFormData, StoreSearchFilters, UserLocation } from
 import { storeApi, districtApi, getAvailableItems } from '../services/api';
 import StoreForm from '../components/Store/StoreForm';
 import StoreInventoryModal from '../components/Store/StoreInventoryModal';
+import StoreMapModal from '../components/Store/StoreMapModal';
+import SearchableSelect from '../components/Inventory/SearchableSelect';
 import './Stores.css';
+
+// Helper function to format store type names for display
+const formatStoreTypeName = (type: string): string => {
+  const typeMap: { [key: string]: string } = {
+    '7-eleven': '7-Eleven',
+    'satrafoods': 'Satrafoods',
+    'familymart': 'FamilyMart',
+    'ministop': 'MINISTOP',
+    'bach-hoa-xanh': 'Bách hóa XANH',
+    'gs25': 'GS25',
+    'circle-k': 'Circle K',
+    'winmart': 'WinMart',
+    'coopxtra': 'Co.opXtra',
+    'other': 'Other',
+    'unknown': 'Unknown'
+  };
+  
+  return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
 
 const Stores: React.FC = () => {
   // State for stores data
@@ -25,9 +46,15 @@ const Stores: React.FC = () => {
   const [showInventoryModal, setShowInventoryModal] = useState(false);
   const [selectedStoreForInventory, setSelectedStoreForInventory] = useState<Store | null>(null);
 
+  // State for map modal
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedStoreForMap, setSelectedStoreForMap] = useState<Store | null>(null);
+
   // State for districts and inventory items
   const [districts, setDistricts] = useState<District[]>([]);
   const [availableItems, setAvailableItems] = useState<string[]>([]);
+  const [loadingDistricts, setLoadingDistricts] = useState(false);
+  const [loadingItems, setLoadingItems] = useState(false);
 
   // State for feedback messages
   const [successMessage, setSuccessMessage] = useState('');
@@ -121,7 +148,7 @@ const Stores: React.FC = () => {
           if (searchFilters.search) searchMessage += ` matching "${searchFilters.search}"`;
           if (searchFilters.sort_by_nearby && userLocation) searchMessage += ` sorted by distance`;
           if (searchFilters.district) searchMessage += ` in selected district`;
-          if (searchFilters.store_type) searchMessage += ` (${searchFilters.store_type.replace('_', ' ')} stores only)`;
+          if (searchFilters.store_type) searchMessage += ` (${formatStoreTypeName(searchFilters.store_type)} stores only)`;
           if (searchFilters.is_active !== undefined) searchMessage += ` (${searchFilters.is_active ? 'Active' : 'Inactive'} only)`;
           if (searchFilters.inventory_item) searchMessage += ` with "${searchFilters.inventory_item}" in stock`;
           
@@ -142,6 +169,7 @@ const Stores: React.FC = () => {
 
   const loadDistricts = async () => {
     try {
+      // Load all districts without any search parameters
       const response = await districtApi.getDistricts();
       
       if (response.success && response.data) {
@@ -199,6 +227,58 @@ const Stores: React.FC = () => {
 
   const handleInventoryItemChange = (item: string) => {
     setSearchFilters(prev => ({ ...prev, inventory_item: item }));
+  };
+
+  // District search functionality
+  const handleDistrictSearch = async (searchTerm: string) => {
+    // If search term is empty or too short, reload all districts
+    if (searchTerm.length < 2) {
+      loadDistricts();
+      return;
+    }
+    
+    setLoadingDistricts(true);
+    try {
+      // Use the dedicated search endpoint with district_name parameter
+      const response = await districtApi.searchDistricts({
+        district_name: searchTerm
+      });
+      
+      if (response.success && response.data) {
+        setDistricts(response.data.results);
+      } else {
+        console.error('Error searching districts:', response.message);
+        // Fallback to loading all districts on search error
+        loadDistricts();
+      }
+    } catch (error) {
+      console.error('Error searching districts:', error);
+      // Fallback to loading all districts on search error
+      loadDistricts();
+    } finally {
+      setLoadingDistricts(false);
+    }
+  };
+
+  // Inventory item search functionality
+  const handleInventoryItemSearch = async (searchTerm: string) => {
+    if (searchTerm.length < 2) return;
+    
+    setLoadingItems(true);
+    try {
+      const response = await getAvailableItems();
+      
+      if (response.success && response.data) {
+        const filteredItems = response.data.items.filter(item => 
+          item.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        setAvailableItems(filteredItems);
+      }
+    } catch (error) {
+      console.error('Error searching inventory items:', error);
+    } finally {
+      setLoadingItems(false);
+    }
   };
 
   const handleSortByNearbyChange = (sortByNearby: boolean) => {
@@ -278,6 +358,77 @@ const Stores: React.FC = () => {
   const handleCloseInventoryModal = () => {
     setShowInventoryModal(false);
     setSelectedStoreForInventory(null);
+  };
+
+  const handleViewStore = (store: Store) => {
+    setSelectedStoreForMap(store);
+    setShowMapModal(true);
+  };
+
+  const handleCloseMapModal = () => {
+    setShowMapModal(false);
+    setSelectedStoreForMap(null);
+  };
+
+  const handleRouteToStore = async (store: Store) => {
+    // Check if store has location data - use the separate latitude/longitude fields
+    if (!store.latitude || !store.longitude) {
+      alert('📍 Location data not available for this store.');
+      return;
+    }
+
+    // Check if geolocation is supported
+    if (!navigator.geolocation) {
+      alert('🚫 Geolocation is not supported by this browser.');
+      return;
+    }
+
+    try {
+      // Request user's current location
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        });
+      });
+
+      const { latitude: userLat, longitude: userLng } = position.coords;
+      const storeLat = store.latitude;
+      const storeLng = store.longitude;
+
+      // Create Google Maps URL for directions
+      const googleMapsUrl = `https://www.google.com/maps/dir/${userLat},${userLng}/${storeLat},${storeLng}`;
+      
+      // Open in new tab
+      window.open(googleMapsUrl, '_blank');
+
+    } catch (error) {
+      console.error('Error getting location:', error);
+      
+      if (error instanceof GeolocationPositionError) {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert('🚫 Location access denied. Please enable location access and try again.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert('📍 Location information is unavailable.');
+            break;
+          case error.TIMEOUT:
+            alert('⏰ Location request timed out. Please try again.');
+            break;
+          default:
+            alert('❌ An unknown error occurred while getting your location.');
+            break;
+        }
+      } else {
+        // Fallback: open Google Maps without current location
+        const storeLat = store.latitude;
+        const storeLng = store.longitude;
+        const googleMapsUrl = `https://www.google.com/maps/search/${storeLat},${storeLng}`;
+        window.open(googleMapsUrl, '_blank');
+      }
+    }
   };
 
   const handleFormSubmit = async (formData: StoreFormData) => {
@@ -430,20 +581,20 @@ const Stores: React.FC = () => {
             <div className="advanced-filters">
               <div className="filter-row">
                 <div className="filter-group">
-                  <label htmlFor="district-filter">District:</label>
-                  <select 
-                    id="district-filter"
-                    className="filter-select" 
-                    value={searchFilters.district || ''}
-                    onChange={(e) => handleDistrictChange(e.target.value)}
-                  >
-                    <option value="">All Districts</option>
-                    {Array.isArray(districts) && districts.map(district => (
-                      <option key={district.id} value={district.id}>
-                        {district.name}
-                      </option>
-                    ))}
-                  </select>
+                  <SearchableSelect
+                    options={districts.map(district => ({
+                      id: district.id,
+                      name: district.name,
+                      subtitle: district.city,
+                      description: `${district.district_type} district • Code: ${district.code}`
+                    }))}
+                    selectedId={searchFilters.district ? parseInt(searchFilters.district) : null}
+                    onSelect={(option) => handleDistrictChange(option ? option.id.toString() : '')}
+                    placeholder="Search districts..."
+                    label="District"
+                    loading={loadingDistricts}
+                    onSearch={handleDistrictSearch}
+                  />
                 </div>
                 <div className="filter-group">
                   <label htmlFor="status-filter">Status:</label>
@@ -459,38 +610,46 @@ const Stores: React.FC = () => {
                   </select>
                 </div>
                 <div className="filter-group">
-                  <label htmlFor="store-type-filter">Store Type:</label>
+                  <label htmlFor="store-type-filter">Store Brand:</label>
                   <select
                     id="store-type-filter"
                     className="filter-select"
                     value={searchFilters.store_type || ''}
                     onChange={(e) => setSearchFilters(prev => ({ ...prev, store_type: e.target.value }))}
                   >
-                    <option value="">All Store Types</option>
-                    <option value="convenience">Convenience Store</option>
-                    <option value="gas_station">Gas Station</option>
-                    <option value="supermarket">Supermarket</option>
-                    <option value="pharmacy">Pharmacy</option>
+                    <option value="">All Store Brands</option>
+                    <option value="7-eleven">7-Eleven</option>
+                    <option value="satrafoods">Satrafoods</option>
+                    <option value="familymart">FamilyMart</option>
+                    <option value="ministop">MINISTOP</option>
+                    <option value="bach-hoa-xanh">Bách hóa XANH</option>
+                    <option value="gs25">GS25</option>
+                    <option value="circle-k">Circle K</option>
+                    <option value="winmart">WinMart</option>
+                    <option value="coopxtra">Co.opXtra</option>
                     <option value="other">Other</option>
                   </select>
                 </div>
               </div>
               <div className="filter-row">
                 <div className="filter-group">
-                  <label htmlFor="inventory-filter">Inventory Item:</label>
-                  <select
-                    id="inventory-filter"
-                    className="filter-select"
-                    value={searchFilters.inventory_item || ''}
-                    onChange={(e) => handleInventoryItemChange(e.target.value)}
-                  >
-                    <option value="">All Items</option>
-                    {availableItems.map(item => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                  </select>
+                  <SearchableSelect
+                    options={availableItems.map((item, index) => ({
+                      id: index + 1, // Use index as ID since items are strings
+                      name: item,
+                      subtitle: 'Available in stores',
+                      description: undefined
+                    }))}
+                    selectedId={searchFilters.inventory_item ? 
+                      availableItems.findIndex(item => item === searchFilters.inventory_item) + 1 : 
+                      null}
+                    onSelect={(option) => handleInventoryItemChange(option ? 
+                      availableItems[option.id - 1] : '')}
+                    placeholder="Search inventory items..."
+                    label="Inventory Item"
+                    loading={loadingItems}
+                    onSearch={handleInventoryItemSearch}
+                  />
                 </div>
                 <div className="filter-group checkbox-group">
                   <label>
@@ -525,11 +684,11 @@ const Stores: React.FC = () => {
             stores.map((store) => {
               // Calculate distance if we have user location and store location
               let distance = null;
-              if (searchFilters.sort_by_nearby && userLocation && store.location) {
+              if (searchFilters.sort_by_nearby && userLocation && store.latitude && store.longitude) {
                 const lat1 = userLocation.latitude;
                 const lon1 = userLocation.longitude;
-                const lat2 = store.location.latitude;
-                const lon2 = store.location.longitude;
+                const lat2 = store.latitude;
+                const lon2 = store.longitude;
                 
                 // Haversine formula for distance calculation
                 const R = 6371; // Earth's radius in kilometers
@@ -567,6 +726,12 @@ const Stores: React.FC = () => {
                     )}
                   </div>
                   <div className="store-actions">
+                    <button className="action-btn view" onClick={() => handleViewStore(store)}>
+                      🗺️ View
+                    </button>
+                    <button className="action-btn route" onClick={() => handleRouteToStore(store)}>
+                      🧭 Route
+                    </button>
                     <button className="action-btn edit" onClick={() => handleEditStore(store)}>
                       ✏️ Edit
                     </button>
@@ -665,6 +830,14 @@ const Stores: React.FC = () => {
         <StoreInventoryModal
           store={selectedStoreForInventory}
           onClose={handleCloseInventoryModal}
+        />
+      )}
+
+      {/* Store Map Modal */}
+      {showMapModal && selectedStoreForMap && (
+        <StoreMapModal
+          store={selectedStoreForMap}
+          onClose={handleCloseMapModal}
         />
       )}
     </div>

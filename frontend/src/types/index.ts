@@ -10,7 +10,7 @@ export interface Store {
   };
   latitude?: number;
   longitude?: number;
-  store_type: 'convenience' | 'gas_station' | 'supermarket' | 'pharmacy' | 'other';
+  store_type: '7-eleven' | 'satrafoods' | 'familymart' | 'ministop' | 'bach-hoa-xanh' | 'gs25' | 'circle-k' | 'winmart' | 'coopxtra' | 'other';
   district?: string;
   district_obj?: number;
   city: string;

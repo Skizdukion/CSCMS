@@ -15,6 +15,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     { path: '/stores', label: 'Stores', icon: '🏪', description: 'Store management' },
     { path: '/items', label: 'Items', icon: '🛒', description: 'Product catalog' },
     { path: '/inventory', label: 'Inventory', icon: '📦', description: 'Stock management' },
+    { path: '/analytics', label: 'Analytics', icon: '📈', description: 'Business insights' },
   ];
 
   const handleMobileMenuToggle = () => {

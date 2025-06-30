@@ -7,8 +7,7 @@
         "is_active": true,
         "rating": 4.3,
         "latitude": 10.790590819804223,
-        "longitude": 106.71892466752884,
-        "address": "S06 Shophouse Saigon Pearl, 92 Nguyễn Hữu Cảnh, Saigon Pearl, P. 22, Q. Bình Thạnh, Hồ Chí Minh"
+        "longitude": 106.71892466752884
     },
     {
         "name": "7-Eleven 23 Tôn Thất Tùng",
@@ -18,8 +17,7 @@
         "is_active": true,
         "rating": 4.2,
         "latitude": 10.770593607194511,
-        "longitude": 106.68799288287074,
-        "address": "23 Tôn Thất Tùng, Phạm Ngũ Lão, Quận 1, Hồ Chí Minh"
+        "longitude": 106.68799288287074
     },
     {
         "name": "7-Eleven The Tresor",
@@ -28,9 +26,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.5,
-        "latitude": 10.760773,
-        "longitude": 106.702958,
-        "address": "The Tresor, 39 Bến Vân Đồn, Phường 12, Quận 4, Hồ Chí Minh"
+        "latitude": 10.766571689105435,
+        "longitude": 106.70335508287074
     },
     {
         "name": "7-Eleven 21B Hậu Giang",
@@ -39,20 +36,18 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.796328,
-        "longitude": 106.650893,
-        "address": "21B Hậu Giang, Phường 4, Tân Bình, Hồ Chí Minh"
+        "latitude": 10.807778854572735,
+        "longitude": 106.66354812393111
     },
     {
-        "name": "7-Eleven Lô I2 Đường D1",
+        "name": "7-Eleven - Intel Campus",
         "phone": "+84 869 678 711",
         "email": "cskh@7-eleven.vn",
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.5,
-        "latitude": 10.849987,
-        "longitude": 106.772596,
-        "address": "Lô I2 Đường D1, Tân Phú, Quận 9, Hồ Chí Minh"
+        "latitude": 10.85393218453193,
+        "longitude": 106.79784465403597
     },
     {
         "name": "7-Eleven Bệnh Viện Chợ Rẫy",
@@ -61,20 +56,18 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.3,
-        "latitude": 10.758807,
-        "longitude": 106.666904,
-        "address": "Bệnh Viện Chợ Rẫy - 201B Nguyễn Chí Thanh, Phường 12, Quận 5, Hồ Chí Minh"
+        "latitude": 10.756793431129207,
+        "longitude": 106.66068431500966
     },
     {
-        "name": "7-Eleven C1-SH.06 Vinhomes Central Park",
+        "name": "7-Eleven - Vinhomes Central Park, Tòa Park 3",
         "phone": "+84 989 155 711",
         "email": "cskh@7-eleven.vn",
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.793798,
-        "longitude": 106.721495,
-        "address": "C1-SH.06 Vinhomes Central Park, 720A Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh"
+        "latitude": 10.792366485736622,
+        "longitude": 106.72295426400504
     },
     {
         "name": "7-Eleven L1-SH01.A Vinhomes Central Park",
@@ -83,9 +76,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.793798,
-        "longitude": 106.721495,
-        "address": "L1-SH01.A Vinhomes Central Park, 720A Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh"
+        "latitude": 10.795306870884476,
+        "longitude": 106.72217105901173
     },
     {
         "name": "7-Eleven Hoàng Anh Goldhouse",
@@ -93,10 +85,9 @@
         "email": "cskh@7-eleven.vn",
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
-        "rating": 4.6,
-        "latitude": 10.709971,
-        "longitude": 106.702434,
-        "address": "Hoàng Anh Goldhouse, 187A Lê Văn Lương, Phước Kiển, Nhà Bè, Hồ Chí Minh"
+        "rating": 4.7,
+        "latitude": 10.711255755522695,
+        "longitude": 106.70451471855986
     },
     {
         "name": "7-Eleven L6-SH02 Lux6 Vinhomes Golden River",
@@ -105,9 +96,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.5,
-        "latitude": 10.789174,
-        "longitude": 106.704207,
-        "address": "L6-SH02, Tầng trệt, Lux6, Vinhomes Golden River, 02 Đường Tôn Đức Thắng, Bến Nghé, Quận 1, Hồ Chí Minh"
+        "latitude": 10.786801035405503,
+        "longitude": 106.71012868287097
     },
     {
         "name": "MINISTOP - Lam Son",
@@ -116,9 +106,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.803738,
-        "longitude": 106.671046,
-        "address": "25A Lam Son Street, Tan Binh District"
+        "latitude": 10.810210435123027,
+        "longitude": 106.66664759451584
     },
     {
         "name": "MINISTOP - D2",
@@ -127,9 +116,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 2.7,
-        "latitude": 10.801646,
-        "longitude": 106.711145,
-        "address": "48A D2 Street, Binh Thanh District"
+        "latitude": 10.805390798240087,
+        "longitude": 106.71578908102242
     },
     {
         "name": "MINISTOP - Nguyen Hong Dao",
@@ -138,9 +126,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.3,
-        "latitude": 10.79815,
-        "longitude": 106.64335,
-        "address": "191 Nguyen Hong Dao Street, Tan Binh District"
+        "latitude": 10.793097940746012,
+        "longitude": 106.64218295403553
     },
     {
         "name": "MINISTOP - Bach Dang",
@@ -150,8 +137,7 @@
         "is_active": true,
         "rating": 2.8,
         "latitude": 10.81057,
-        "longitude": 106.67812,
-        "address": "165 Bach Dang Street, Tan Binh District"
+        "longitude": 106.67812
     },
     {
         "name": "MINISTOP - Tran Thien Chanh",
@@ -160,9 +146,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 1.8,
-        "latitude": 10.76757,
-        "longitude": 106.66668,
-        "address": "77 Tran Thien Chanh Street, District 10"
+        "latitude": 10.771705965870225,
+        "longitude": 106.67053492335106
     },
     {
         "name": "MINISTOP - Tran Doan Khanh",
@@ -171,9 +156,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.1,
-        "latitude": 10.78441,
-        "longitude": 106.69837,
-        "address": "2 Tran Doan Khanh Street, District 1"
+        "latitude": 10.788761742118202,
+        "longitude": 106.6977178098578
     },
     {
         "name": "MINISTOP - Nguyen Thuong Hien",
@@ -182,9 +166,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.79361,
-        "longitude": 106.69677,
-        "address": "245 Nguyen Thuong Hien Street, Ward 5, Binh Thanh District"
+        "latitude": 10.80596601385641,
+        "longitude": 106.68587803869347
     },
     {
         "name": "MINISTOP - Do Thanh",
@@ -193,9 +176,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 2.6,
-        "latitude": 10.77259,
-        "longitude": 106.68114,
-        "address": "No 129 - 131, Street 3, Cu Xa Do Thanh, District 3"
+        "latitude": 10.772734300536886,
+        "longitude": 106.6810809866442
     },
     {
         "name": "MINISTOP - Hoa Hung",
@@ -204,9 +186,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 2.6,
-        "latitude": 10.77708,
-        "longitude": 106.67027,
-        "address": "101 Hoa Hung Street, Ward 12, District 10"
+        "latitude": 10.779055324261144,
+        "longitude": 106.67400239636433
     },
     {
         "name": "MINISTOP - Hoang Hoa Tham",
@@ -215,9 +196,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 2.0,
-        "latitude": 10.79632,
-        "longitude": 106.69083,
-        "address": "10A Hoang Hoa Tham Street, Ward 7, Binh Thanh District"
+        "latitude": 10.804833226234283,
+        "longitude": 106.6915974643438
     },
     {
         "name": "WinMart Jamila Khang Điền",
@@ -226,9 +206,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.80373,
-        "longitude": 106.78652,
-        "address": "Số 60, A.01.TMDV01/02, Cao ốc Jamila, Đường 697, Phú Hữu,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.795827185195739,
+        "longitude": 106.78469874054217
     },
     {
         "name": "WinMart Chung cư An Cư",
@@ -237,9 +216,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.79373,
-        "longitude": 106.74548,
-        "address": "Số 8, 0.02, Thái Thuận, Chung Cư An Cư An Phú,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.793611286406577,
+        "longitude": 106.7396491037592
     },
     {
         "name": "WinMart+ 185B Nguyễn Thị Định",
@@ -248,9 +226,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.78441,
-        "longitude": 106.75883,
-        "address": "Số 185B, Nguyễn Thị Định, An Phú,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.790679754554237,
+        "longitude": 106.75400139636436
     },
     {
         "name": "WIN 81 đường số 2",
@@ -259,9 +236,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 3.8,
-        "latitude": 10.83584,
-        "longitude": 106.70425,
-        "address": "Số 81, Đường Số 2, Hiệp Bình Phước,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.83904407535417,
+        "longitude": 106.71932223684502
     },
     {
         "name": "WinMart+ 120 Lò Lu",
@@ -270,9 +246,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.82522,
-        "longitude": 106.81223,
-        "address": "Số 120, Lò Lu, Trường Thạnh,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.826531830146996,
+        "longitude": 106.81876936937782
     },
     {
         "name": "WinMart+ Thủ Thiêm Garden",
@@ -281,9 +256,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.79633,
-        "longitude": 106.77258,
-        "address": "Số 269, B1.01, Tầng 1, Thủ Thiêm Garden, Block B, Liên Phường, Phước Long B,Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.807454721620681,
+        "longitude": 106.78942491355531
     },
     {
         "name": "WinMart Quang Trung",
@@ -292,9 +266,8 @@
         "opening_hours": "8:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.82587,
-        "longitude": 106.66258,
-        "address": "Số 190, Quang Trung, Tầng L1, TTTM Vincom Plaza Quang Trung, Gò Vấp, Phường 10, Hồ Chí Minh"
+        "latitude": 10.829414555849535,
+        "longitude": 106.67251392335159
     },
     {
         "name": "WinMart Bàu Cát",
@@ -303,9 +276,8 @@
         "opening_hours": "7:00 AM-10:00 PM (Monday-Sunday)",
         "is_active": true,
         "rating": 4.1,
-        "latitude": 10.79373,
-        "longitude": 106.64295,
-        "address": "Lô B Chung Cư Bàu Cát 2, Tân Bình, Phường 10, Hồ Chí Minh"
+        "latitude": 10.786578087431346,
+        "longitude": 106.64523018684466
     },
     {
         "name": "WinMart Phan Văn Trị",
@@ -314,9 +286,8 @@
         "opening_hours": "10:00 AM-10:00 PM (Monday-Friday), 9:30 AM-10:00 PM (Saturday-Sunday)",
         "is_active": true,
         "rating": 4.3,
-        "latitude": 10.82029,
-        "longitude": 106.69083,
-        "address": "Số 12, Phan Văn Trị, Tầng L2, TTTM Vincom Plaza, Gò Vấp, Phường 7, Hồ Chí Minh"
+        "latitude": 10.831647167747375,
+        "longitude": 106.67974858102251
     },
     {
         "name": "WinMart Lê Văn Việt",
@@ -325,20 +296,18 @@
         "opening_hours": "7:00 AM-10:00 PM (Monday-Saturday), 7:30 AM-10:00 PM (Sunday)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.81765,
-        "longitude": 106.77293,
-        "address": "Số 50 Lê Văn Việt, Tầng L1, TTTM Vincom Plaza, Thủ Đức, Hiệp Phú Hồ Chí Minh"
+        "latitude": 10.844590206459326,
+        "longitude": 106.77840914925339
     },
     {
-        "name": "Circle K 116 Pho Quang",
+        "name": "Circle K 124 Pho Quang",
         "phone": "+84 28 3997 6065",
         "email": null,
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 2.9,
-        "latitude": 10.80373,
-        "longitude": 106.66699,
-        "address": "116 Pho Quang, Ward 9"
+        "latitude": 10.810580992847706,
+        "longitude": 106.67221628030521
     },
     {
         "name": "Circle K 106 Hoang Dieu",
@@ -347,9 +316,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.8,
-        "latitude": 10.7554,
-        "longitude": 106.69747,
-        "address": "106 Hoang Dieu, Ward 13"
+        "latitude": 10.764101572812415,
+        "longitude": 106.70416903444315
     },
     {
         "name": "Circle K S02.BS07. Vinhome Grand Park",
@@ -358,9 +326,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.8,
-        "latitude": 10.8524,
-        "longitude": 106.84074,
-        "address": "S02.BS07. Vinhome Grand Park"
+        "latitude": 10.845926306372613,
+        "longitude": 106.83659229599469
     },
     {
         "name": "Circle K S1.11. BS10",
@@ -369,20 +336,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.8524,
-        "longitude": 106.84074,
-        "address": "S1.11. BS10"
-    },
-    {
-        "name": "Circle K Tan Son Nhat International Airport",
-        "phone": "+84 918 978 668",
-        "email": null,
-        "opening_hours": "Open 24 hours (Monday-Sunday)",
-        "is_active": true,
-        "rating": 3.6,
-        "latitude": 10.81799,
-        "longitude": 106.65778,
-        "address": "Area C2 Ground Floor - Commercial Area Domestic Terminal Parking Lot - Tan Son Nhat International Airport No. 45 Truong Son"
+        "latitude": 10.847014869450422,
+        "longitude": 106.84269550985812
     },
     {
         "name": "Circle K 139 Hai Ba Trung",
@@ -391,9 +346,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 2.3,
-        "latitude": 10.78453,
-        "longitude": 106.6923,
-        "address": "139 Hai Ba Trung, Vo Thi Sau Ward"
+        "latitude": 10.783260337766084,
+        "longitude": 106.69773848656835
     },
     {
         "name": "Circle K 944 Le Van Luong",
@@ -402,9 +356,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.72251,
-        "longitude": 106.67104,
-        "address": "944 Le Van Luong, Hamlet 3"
+        "latitude": 10.709525870685049,
+        "longitude": 106.70239585403475
     },
     {
         "name": "Circle K 92B Hoa Binh",
@@ -413,9 +366,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.5,
-        "latitude": 10.76813,
-        "longitude": 106.6375,
-        "address": "92B Hoa Binh, Ward 5, District 11, HCMC"
+        "latitude": 10.769293241150693,
+        "longitude": 106.63789803205736
     },
     {
         "name": "FamilyMart - Sài Gòn Sky Garden",
@@ -424,19 +376,8 @@
         "opening_hours": "Open 24 hours (Monday-Sunday)",
         "is_active": true,
         "rating": 3.6,
-        "latitude": 10.77884,
-        "longitude": 106.70228,
-        "address": "Tầng trệt, Tòa nhà Saigon Sky Garden, 20 Lê Thánh Tôn, P. Bến Nghé, Q. 1, Tp. HCM"
-    },
-    {
-        "name": "FamilyMart - Zen Plaza",
-        "phone": "+84 28 3925 0339",
-        "email": null,
-        "opening_hours": "T2-T6: 08:00–18:00, Thứ Bảy: Đóng cửa, Chủ Nhật: Đóng cửa",
-        "is_active": true,
-        "rating": 4.6,
-        "latitude": 10.771128,
-        "longitude": 106.694666
+        "latitude": 10.78134698391957,
+        "longitude": 106.70491915403538
     },
     {
         "name": "FamilyMart - 138 Lý Chính Thắng",
@@ -445,8 +386,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.4,
-        "latitude": 10.78912,
-        "longitude": 106.68532
+        "latitude": 10.787535281745559,
+        "longitude": 106.68471936752894
     },
     {
         "name": "FamilyMart - 58 Pasteur",
@@ -455,8 +396,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.77589,
-        "longitude": 106.70068
+        "latitude": 10.771735086262757, 
+        "longitude": 106.70221733499572
     },
     {
         "name": "FamilyMart - Nguyễn Khắc Nhu",
@@ -465,8 +406,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.8,
-        "latitude": 10.7674,
-        "longitude": 106.69466
+        "latitude": 10.7638147702128, 
+        "longitude": 106.69323081170637
     },
     {
         "name": "FamilyMart - 259 Hòa Hảo",
@@ -475,18 +416,18 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.8,
-        "latitude": 10.75949,
-        "longitude": 106.66699
+        "latitude": 10.762290590606627, 
+        "longitude": 106.67001469451543
     },
     {
-        "name": "FamilyMart - 72/2B Tôn Đản",
+        "name": "FamilyMart - Tôn Đản",
         "phone": null,
         "email": null,
         "opening_hours": null,
         "is_active": true,
         "rating": 3.7,
-        "latitude": 10.75704,
-        "longitude": 106.69974
+        "latitude": 10.761584193065772, 
+        "longitude": 106.70708232973418
     },
     {
         "name": "FamilyMart - 629 Bình Thới",
@@ -495,18 +436,18 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.76282,
-        "longitude": 106.64344
+        "latitude": 10.762843750309132, 
+        "longitude": 106.6422770521867
     },
     {
-        "name": "FamilyMart - 805 Nguyễn Thái Sơn",
+        "name": "FamilyMart - Nguyễn Thái Sơn",
         "phone": null,
         "email": null,
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.4,
-        "latitude": 10.82012,
-        "longitude": 106.68744
+        "latitude": 10.828449559379775, 
+        "longitude": 106.69059798725918
     },
     {
         "name": "FamilyMart - BS10 - The Tropical",
@@ -515,8 +456,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.9,
-        "latitude": 10.8524,
-        "longitude": 106.84074
+        "latitude": 10.84679576362063, 
+        "longitude": 106.84290169451616
     },
     {
         "name": "GS25 Trần Nhật Duật - Quận 1",
@@ -525,8 +466,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.78772,
-        "longitude": 106.69741
+        "latitude": 10.794161898126003, 
+        "longitude": 106.68945723021031
     },
     {
         "name": "GS25 Trần Quang Khải - Quận 1",
@@ -535,9 +476,8 @@
         "opening_hours": "T2-CN: 10:38–22:00",
         "is_active": true,
         "rating": 2.0,
-        "latitude": 10.79093,
-        "longitude": 106.69469,
-        "address": "Tầng 1 (một phần) và Tầng 2 (một phần), 116-118 Trần Quang Khải, Phường Tân Định, Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.792510248804556, 
+        "longitude": 106.69232905218676
     },
     {
         "name": "GS25 172 Lý Tự Trọng",
@@ -546,9 +486,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.3,
-        "latitude": 10.7766,
-        "longitude": 106.69375,
-        "address": "172 Lý Tự Trọng, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.773318766213796, 
+        "longitude": 106.69582471170635
     },
     {
         "name": "GS25 254 Hai Bà Trưng",
@@ -557,9 +496,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 3.8,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "Tầng 1 – Lửng T1 – Tầng 2, 254 Hai Bà Trưng, Phường Tân Định. Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.788838132262006, 
+        "longitude": 106.69105038788102
     },
     {
         "name": "GS25 Phan Chu Trinh - Quận 1",
@@ -568,9 +506,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.5,
-        "latitude": 10.77359,
-        "longitude": 106.70119,
-        "address": "Tầng 1 (một phần), 41 Phan Chu Trinh, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.772719503838735, 
+        "longitude": 106.69717962704841
     },
     {
         "name": "GS25 Trần Cao Vân – Quận 3",
@@ -579,9 +516,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 3.1,
-        "latitude": 10.78453,
-        "longitude": 106.6923,
-        "address": "Căn A2 + A6 (tầng trệt), Chung cư 42 Trần Cao Vân, Phường Võ Thị Sáu, Quận 3, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.78328955896416, 
+        "longitude": 106.69617038102218
     },
     {
         "name": "GS25 598 CMT8 – Quận 3",
@@ -590,9 +526,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.0,
-        "latitude": 10.78443,
-        "longitude": 106.67499,
-        "address": "598-600 Cách Mạng Tháng 8, Phường 11, Quận 3, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.786581010447279, 
+        "longitude": 106.66582154534478
     },
     {
         "name": "GS25 More Building – Quận 3",
@@ -601,9 +536,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.1,
-        "latitude": 10.78443,
-        "longitude": 106.67499,
-        "address": "Tầng G (một phần), More Building, 520 Cách Mạng Tháng Tám, Phường 11, Quận 3, Thành phố Hồ Chí Minh, Việt Nam"
+        "latitude": 10.785676339620256, 
+        "longitude": 106.66754443684464
     },
     {
         "name": "Bách hóa XANH Đề Thám",
@@ -612,9 +546,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.76611,
-        "longitude": 106.69476,
-        "address": "Đề Thám, Phường Cầu Ông Lãnh, Quận 1, Thành phố Hồ Chí Minh, Vietnam"
+        "latitude": 10.765854589377238, 
+        "longitude": 106.69477770985772
     },
     {
         "name": "Bách hóa XANH 60 Đường 39",
@@ -623,9 +556,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.80373,
-        "longitude": 106.66699,
-        "address": "60 Đường số 39, Khu phố 1, Quận 2, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.783385480132633, 
+        "longitude": 106.76533633869327
     },
     {
         "name": "Bách hóa XANH Lý Thái Tổ",
@@ -634,9 +566,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.7674,
-        "longitude": 106.69466,
-        "address": "Lý Thái Tổ, Phường 1, Quận 3, Thành phố Hồ Chí Minh, Vietnam"
+        "latitude": 10.767999342216266, 
+        "longitude": 106.67713736181572
     },
     {
         "name": "Bách hóa XANH 49A Huỳnh Tịnh Của",
@@ -645,9 +576,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.78453,
-        "longitude": 106.6923,
-        "address": "49A Huỳnh Tịnh Của, Phường 8, Quận 3, Thành phố Hồ Chí Minh, Vietnam"
+        "latitude": 10.789472633623859, 
+        "longitude": 106.68732954054212
     },
     {
         "name": "Bách hóa XANH Hoà Hưng",
@@ -656,9 +586,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.77884,
-        "longitude": 106.67499,
-        "address": "Hoà Hưng, Phường 12, Quận 10, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.779182121879339, 
+        "longitude": 106.67425139821303
     },
     {
         "name": "Bách Hóa Xanh Xóm Chiếu",
@@ -667,9 +596,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.3,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "115 Xóm Chiếu, Phường 14, Quận 4, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.758176015552054, 
+        "longitude": 106.71065409266683
     },
     {
         "name": "Bách hóa XANH Vĩnh Hội",
@@ -678,9 +606,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "Vĩnh Hội, Phường 4, Quận 4, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.756258275068761, 
+        "longitude": 106.70480172519959
     },
     {
         "name": "Bách hóa XANH 25 Nguyễn Khoái",
@@ -689,9 +616,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.1,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "25 Nguyễn Khoái, Phường 1, Quận 4, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.75383767023161, 
+        "longitude": 106.69478529266682
     },
     {
         "name": "Co.opXtra Linh Trung - Thủ Đức",
@@ -700,9 +626,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.8524,
-        "longitude": 106.84074,
-        "address": "934 QL1A, Linh Trung, Thủ Đức, Hồ Chí Minh"
+        "latitude": 10.868440053209346, 
+        "longitude": 106.77668456937813
     },
     {
         "name": "Co.opXtra Tân Phong - Quận 7",
@@ -711,9 +636,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.73037,
-        "longitude": 106.70817,
-        "address": "1058 Nguyễn Văn Linh, Tân Phong, 7, Hồ Chí Minh"
+        "latitude": 10.729801178209655, 
+        "longitude": 106.70405656937714
     },
     {
         "name": "Co.opXtra Vạn Hạnh - Quận 10",
@@ -722,9 +646,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.4,
-        "latitude": 10.77093,
-        "longitude": 106.66699,
-        "address": "Van Hanh Mall - 11 Sư Vạn Hạnh, Phường 12, Quận 10"
+        "latitude": 10.77126296613419, 
+        "longitude": 106.66951880985758
     },
     {
         "name": "Co.opXtra Phạm Văn Đồng - Thủ Đức",
@@ -733,9 +656,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.4,
-        "latitude": 10.82012,
-        "longitude": 106.68744,
-        "address": "Gigamall - 242 Phạm Văn Đồng, Hiệp Bình Chánh, Thủ Đức, TP.HCM"
+        "latitude": 10.82804630785138, 
+        "longitude": 106.72179799451605
     },
     {
         "name": "Co.opXtra Tạ Quang Bửu - Quận 8",
@@ -744,9 +666,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.73037,
-        "longitude": 106.70817,
-        "address": "Tầng 2, TTTM Central Premium, số 854-856 Tạ Quang Bửu, Phường 5, Quận 8, TP.HCM"
+        "latitude": 10.736727889416905, 
+        "longitude": 106.66935267122584
     },
     {
         "name": "Co.opXtra Long Bình - Vinhomes Grand Park - Thủ Đức",
@@ -755,9 +676,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.8524,
-        "longitude": 106.84074,
-        "address": "Lô L2-01, Tầng 2, TTTM Vincom Mega Mall Grand Park, Số 88 Đường Phước Thiện, Kp. Phước Thiện, Phường Long Bình, Tp. Thủ Đức, TP.HCM"
+        "latitude": 10.843265424830081, 
+        "longitude": 106.84247328102262
     },
     {
         "name": "Satrafoods LÊ THỊ RIÊNG",
@@ -766,9 +686,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.9,
-        "latitude": 10.77259,
-        "longitude": 106.69466,
-        "address": "2-4-6 Lê Thị Riêng, P.Bến Thành, Quận 1"
+        "latitude": 10.771638726111682, 
+        "longitude": 106.69287214054194
     },
     {
         "name": "Satrafoods LÊ THÁNH TÔN",
@@ -777,9 +696,8 @@
         "opening_hours": "08:00–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.7766,
-        "longitude": 106.69375,
-        "address": "204-206 Lê Thánh Tôn, P.Bến Thành, Quận 1"
+        "latitude": 10.772984967609665, 
+        "longitude": 106.69680098287088
     },
     {
         "name": "Satrafoods ĐINH TIÊN HOÀNG",
@@ -788,20 +706,18 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.9,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "177 Đinh Tiên Hoàng, P.Đa Kao, Quận 1"
+        "latitude": 10.791528988666467, 
+        "longitude": 106.69635239821304
     },
     {
         "name": "Satrafoods NGUYỄN DUY TRINH",
-        "phone": "091.528.9357",
+        "phone": "18001191",
         "email": null,
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "187 Nguyễn Duy Trinh, Phường Bình Trưng Tây, Quận 2"
+        "latitude": 10.789620973405633, 
+        "longitude": 106.76190822189302
     },
     {
         "name": "Satrafoods NGUYỄN THỊ ĐỊNH",
@@ -810,9 +726,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "312 Nguyễn Thị Định, P.Thạnh Mỹ Lợi, Quận 2"
+        "latitude": 10.782909604568388, 
+        "longitude": 106.75862316752891
     },
     {
         "name": "Satrafoods NGUYỄN DUY TRINH 2",
@@ -821,9 +736,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "975 Nguyễn Duy Trinh, P.Bình Trưng Đông, Quận 2"
+        "latitude": 10.790332519903956, 
+        "longitude": 106.78033223684444
     },
     {
         "name": "Satrafoods NGUYỄN THỊ ĐỊNH 2",
@@ -832,9 +746,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.78772,
-        "longitude": 106.69741,
-        "address": "3/1 Nguyễn Thị Định, P.An Phú, Quận 2"
+        "latitude": 10.79123248630166, 
+        "longitude": 106.75415599904998
     },
     {
         "name": "Satrafoods VÕ VĂN TẦN",
@@ -843,9 +756,8 @@
         "opening_hours": "07:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.6,
-        "latitude": 10.7674,
-        "longitude": 106.69466,
-        "address": "455 Võ Văn Tần, Phường 5, Quận 3"
+        "latitude": 10.769735706909751, 
+        "longitude": 106.68396079821285
     },
     {
         "name": "Satrafoods ĐIỆN BIÊN PHỦ",
@@ -854,9 +766,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.0,
-        "latitude": 10.7674,
-        "longitude": 106.69466,
-        "address": "635A Điện Biên Phủ, Phường 1, Quận 3, TP. HCM"
+        "latitude": 10.76917970842679, 
+        "longitude": 106.67554952519977
     },
     {
         "name": "Satrafoods ĐƯỜNG SỐ 41",
@@ -865,9 +776,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.9,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "46-48 Đường số 41, Phường 6, Quận 4"
+        "latitude": 10.758897251554492, 
+        "longitude": 106.70114088471931
     },
     {
         "name": "Satrafoods LÊ VĂN LINH",
@@ -876,9 +786,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.5,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "48–50 Lê Văn Linh, Phường 12, Quận 4"
+        "latitude": 10.763955130419758, 
+        "longitude": 106.70657332335104
     },
     {
         "name": "Satrafoods ĐỖ XUÂN HỢP 2",
@@ -887,9 +796,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 3.9,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "87A Đỗ Xuân Hợp, P.Phước Long B, Quận 9"
+        "latitude": 10.831522205524596, 
+        "longitude": 106.76779166568049
     },
     {
         "name": "Satrafoods TÂY HÒA",
@@ -898,9 +806,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "43 Tây Hòa, KP2, P.Phước Long A, Quận 9"
+        "latitude": 10.826312457489292, 
+        "longitude": 106.76334661170672
     },
     {
         "name": "Satrafoods ĐÌNH PHONG PHÚ",
@@ -909,9 +816,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.7,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "204 Đình Phong Phú, P.Tăng Nhơn Phú B, Quận 9"
+        "latitude": 10.83425772800075, 
+        "longitude": 106.78321636200053
     },
     {
         "name": "Satrafoods DƯƠNG ĐÌNH HỘI",
@@ -920,9 +826,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.1,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "54B Dương Đình Hội, KP6, P.Phước Long B, Quận 9"
+        "latitude": 10.819050695231468, 
+        "longitude": 106.77720156123986
     },
     {
         "name": "Satrafoods LÒ LU",
@@ -931,9 +836,8 @@
         "opening_hours": "07:30–22:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.5,
-        "latitude": 10.8351,
-        "longitude": 106.8488,
-        "address": "88 Lò Lu, P.Trường Thạnh, Quận 9"
+        "latitude": 10.82608846509815, 
+        "longitude": 106.81738486937775
     },
     {
         "name": "Satrafoods ĐÌNH PHONG PHÚ 2",
@@ -942,20 +846,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 4.6,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "115A Đình Phong Phú, KP1, P.Tăng Nhơn Phú B, Quận 9"
-    },
-    {
-        "name": "Satrafoods NGUYỄN DUY TRINH 4",
-        "phone": null,
-        "email": null,
-        "opening_hours": null,
-        "is_active": true,
-        "rating": 4.5,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "793 Nguyễn Duy Trinh, P.Phú Hữu, Quận 9"
+        "latitude": 10.834152390948457, 
+        "longitude": 106.78287835403567
     },
     {
         "name": "Satrafoods DƯƠNG ĐÌNH HỘI 2",
@@ -964,9 +856,8 @@
         "opening_hours": "06:30–18:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "182 Dương Đình Hội, P.Phước Long B, Quận 9"
+        "latitude": 10.825616357857154, 
+        "longitude": 106.77992799451594
     },
     {
         "name": "Satrafoods NGUYỄN XIỂN",
@@ -975,9 +866,8 @@
         "opening_hours": "06:00–21:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.6,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "742 Nguyễn Xiển, P.Long Thạnh Mỹ, Quận 9"
+        "latitude": 10.848420171590822, 
+        "longitude": 106.83158104054247
     },
     {
         "name": "Satrafoods MAN THIỆN",
@@ -986,20 +876,18 @@
         "opening_hours": "06:00–17:00 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 5.0,
-        "latitude": 10.82012,
-        "longitude": 106.80492,
-        "address": "80 Man Thiện, P.Tăng Nhơn Phú A, Quận 9"
+        "latitude": 10.848021694469432, 
+        "longitude": 106.7872179540358
     },
     {
-        "name": "Satrafoods XÔ VIẾT NGHỆ TĨNH 2",
+        "name": "Satrafoods XÔ VIẾT NGHỆ TĨNH",
         "phone": null,
         "email": null,
         "opening_hours": null,
         "is_active": true,
         "rating": 4.3,
-        "latitude": 10.7981,
-        "longitude": 106.7118,
-        "address": "195/9 Xô Viết Nghệ Tĩnh , Phường 17, Quận Bình Thạnh"
+        "latitude": 10.799588120363909, 
+        "longitude": 106.71046806149307
     },
     {
         "name": "MINISTOP - Binh Thoi",
@@ -1008,9 +896,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.5,
-        "latitude": 10.7674,
-        "longitude": 106.69466,
-        "address": "No.120 Binh Thoi Str., Ward 14, District 11, District 11, Ho Chi Minh City"
+        "latitude": 10.767627135050523, 
+        "longitude": 106.64957226697598
     },
     {
         "name": "FamilyMart - 249A Hoàng Văn Thụ",
@@ -1019,9 +906,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.80009,
-        "longitude": 106.66289,
-        "address": "Một phần căn nhà số 249A Hoàng Văn Thụ, Phường 1, Quận Tân Bình, Tp. HCM"
+        "latitude": 10.800206444525966, 
+        "longitude": 106.66545612335138
     },
     {
         "name": "FamilyMart - 204C Nguyễn Văn Hưởng",
@@ -1030,9 +916,8 @@
         "opening_hours": null,
         "is_active": true,
         "rating": 3.0,
-        "latitude": 10.80009,
-        "longitude": 106.66289,
-        "address": "204C Nguyễn Văn Hưởng, P. Thảo Điền, TP. Thủ Đức, Tp. HCM"
+        "latitude": 10.81372265102789, 
+        "longitude": 106.73273959636465
     },
     {
         "name": "Bách hóa XANH 258 Chợ Lớn",
@@ -1041,9 +926,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.3,
-        "latitude": 10.74996,
-        "longitude": 106.63412,
-        "address": "258 Chợ Lớn, Phường 11, Quận 6, Thành phố Hồ Chí Minh, Vietnam"
+        "latitude": 10.744911018888205, 
+        "longitude": 106.62845086567992
     },
     {
         "name": "Bách hóa XANH 43A Tân Hòa Đông",
@@ -1052,9 +936,8 @@
         "opening_hours": "06:30–21:30 (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.2,
-        "latitude": 10.75704,
-        "longitude": 106.69974,
-        "address": "43A Tân Hòa Đông, Phường 14, Quận 6, Thành phố Hồ Chí Minh 700000, Vietnam"
+        "latitude": 10.757154756681755, 
+        "longitude": 106.63180106937737
     },
     {
         "name": "7-Eleven Đại Học Tôn Đức Thắng",
@@ -1063,9 +946,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 4.7,
-        "latitude": 10.7303,
-        "longitude": 106.7093,
-        "address": "Đại Học Tôn Đức Thắng, Tanteen tòa nhà J-K, 19 Nguyễn Hữu Thọ, P. Tân Phong, Quận 7, TP Hồ Chí Minh"
+        "latitude": 10.730696125348608, 
+        "longitude": 106.69790409636396
     },
     {
         "name": "7-Eleven VNG Campus",
@@ -1074,9 +956,8 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Thứ Sáu), 07:00–02:00 (Thứ Bảy), 07:00–00:00 (Chủ Nhật)",
         "is_active": true,
         "rating": 4.6,
-        "latitude": 10.7303,
-        "longitude": 106.7093,
-        "address": "VNG Campus, Lô 3b-4-5-6-7 KCN trong KCX Tân Thuận, Đường số 13, Quận 7, TP Hồ Chí Minh"
+        "latitude": 10.758470832202601, 
+        "longitude": 106.7456434135549
     },
     {
         "name": "FamilyMart - 307A Nguyễn Thị Nhỏ",
@@ -1085,8 +966,7 @@
         "opening_hours": "Mở cửa cả ngày (Thứ Hai-Chủ Nhật)",
         "is_active": true,
         "rating": 2.5,
-        "latitude": 10.7674,
-        "longitude": 106.69466,
-        "address": "307A Nguyễn Thị Nhỏ, Phường 16, Quận 11, Tp. HCM"
+        "latitude": 10.757783553312592, 
+        "longitude": 106.65098153869312
     }
 ]

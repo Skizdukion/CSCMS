@@ -77,6 +77,69 @@ class Command(BaseCommand):
             # Convenience Items
             {'name': 'Bao Cao Su Durex', 'category': 'personal_care', 'brand': 'Durex', 'description': 'Condoms, commonly sold in convenience stores'},
             {'name': 'Bật Lửa Gas', 'category': 'other', 'brand': 'Generic', 'description': 'Gas lighter, essential item'},
+            
+            # More Vietnamese Beverages
+            {'name': 'Café Sữa Đá G7', 'category': 'beverages', 'brand': 'G7', 'description': 'Vietnamese iced coffee with condensed milk'},
+            {'name': 'Nước Cam Tipco 1L', 'category': 'beverages', 'brand': 'Tipco', 'description': 'Fresh orange juice'},
+            {'name': 'Nước Mía Vinamit', 'category': 'beverages', 'brand': 'Vinamit', 'description': 'Sugarcane juice drink'},
+            {'name': 'Trà Thanh Nhiệt Dr Thanh', 'category': 'beverages', 'brand': 'Dr Thanh', 'description': 'Herbal cooling tea'},
+            {'name': 'Yakult Probiotics', 'category': 'beverages', 'brand': 'Yakult', 'description': 'Probiotic drink for digestion'},
+            {'name': 'Nước Tăng Lực Warrior', 'category': 'beverages', 'brand': 'Warrior', 'description': 'Vietnamese energy drink'},
+            {'name': 'Trà Đá Lipton 300ml', 'category': 'beverages', 'brand': 'Lipton', 'description': 'Iced tea ready to drink'},
+            
+            # More Vietnamese Snacks & Food
+            {'name': 'Bánh Mì Sandwich Kinh Đô', 'category': 'food', 'brand': 'Kinh Đô', 'description': 'Vietnamese sandwich bread'},
+            {'name': 'Mì Gói Hảo Hảo', 'category': 'food', 'brand': 'Acecook', 'description': 'Instant noodles, Vietnam\'s favorite'},
+            {'name': 'Bánh Quy Cosy', 'category': 'snacks', 'brand': 'Cosy', 'description': 'Vietnamese biscuit brand'},
+            {'name': 'Snack Oshi Corn', 'category': 'snacks', 'brand': 'Oshi', 'description': 'Corn snack with different flavors'},
+            {'name': 'Mứt Tết Bibica', 'category': 'snacks', 'brand': 'Bibica', 'description': 'Vietnamese preserved fruit candy'},
+            {'name': 'Bánh Tráng Phơi Sương', 'category': 'snacks', 'brand': 'Tây Ninh', 'description': 'Rice paper specialty from Tay Ninh'},
+            {'name': 'Kẹo Dừa Bến Tre', 'category': 'snacks', 'brand': 'Bến Tre', 'description': 'Coconut candy from Ben Tre province'},
+            
+            # Ice Cream & Frozen
+            {'name': 'Kem Cây Merino', 'category': 'food', 'brand': 'Merino', 'description': 'Popular Vietnamese ice cream brand'},
+            {'name': 'Kem Tươi Wall\'s', 'category': 'food', 'brand': 'Wall\'s', 'description': 'International ice cream brand'},
+            
+            # Cigarettes (Very Common in Vietnamese Convenience Stores)
+            {'name': 'Thuốc Lá Craven A', 'category': 'tobacco', 'brand': 'Craven A', 'description': 'Popular cigarette brand in Vietnam'},
+            {'name': 'Thuốc Lá Marlboro', 'category': 'tobacco', 'brand': 'Marlboro', 'description': 'International cigarette brand'},
+            {'name': 'Thuốc Lá Vinataba', 'category': 'tobacco', 'brand': 'Vinataba', 'description': 'Vietnamese tobacco brand'},
+            
+            # More Personal Care
+            {'name': 'Sữa Tắm Romano', 'category': 'personal_care', 'brand': 'Romano', 'description': 'Popular men\'s body wash in Vietnam'},
+            {'name': 'Dầu Gội Sunsilk', 'category': 'personal_care', 'brand': 'Sunsilk', 'description': 'Popular women\'s shampoo brand'},
+            {'name': 'Kem Dưỡng Da Pond\'s', 'category': 'personal_care', 'brand': 'Pond\'s', 'description': 'Facial moisturizing cream'},
+            {'name': 'Lăn Khử Mùi Rexona', 'category': 'personal_care', 'brand': 'Rexona', 'description': 'Roll-on deodorant'},
+            {'name': 'Nước Rửa Tay Antibac', 'category': 'personal_care', 'brand': 'Antibac', 'description': 'Hand sanitizer, popular after COVID'},
+            
+            # Household Items
+            {'name': 'Nước Rửa Chén Sunlight', 'category': 'household', 'brand': 'Sunlight', 'description': 'Dishwashing liquid'},
+            {'name': 'Nước Giặt Omo', 'category': 'household', 'brand': 'Omo', 'description': 'Laundry detergent'},
+            {'name': 'Khăn Ướt Bobby', 'category': 'household', 'brand': 'Bobby', 'description': 'Wet wipes for cleaning'},
+            {'name': 'Túi Đựng Rác Saigon', 'category': 'household', 'brand': 'Saigon', 'description': 'Garbage bags'},
+            
+            # Stationery & Electronics
+            {'name': 'Bút Bi Thiên Long', 'category': 'stationery', 'brand': 'Thiên Long', 'description': 'Popular Vietnamese pen brand'},
+            {'name': 'Pin Panasonic AA', 'category': 'electronics', 'brand': 'Panasonic', 'description': 'AA batteries for devices'},
+            {'name': 'Cáp Sạc USB Type-C', 'category': 'electronics', 'brand': 'Generic', 'description': 'USB charging cable'},
+            {'name': 'Tai Nghe Bluetooth', 'category': 'electronics', 'brand': 'Generic', 'description': 'Wireless earphones'},
+            
+            # Medicines & Health
+            {'name': 'Thuốc Cảm Cúm Decolgen', 'category': 'medicine', 'brand': 'Decolgen', 'description': 'Cold and flu medicine'},
+            {'name': 'Dầu Nóng Thái Dương', 'category': 'medicine', 'brand': 'Thái Dương', 'description': 'Vietnamese medicated oil'},
+            {'name': 'Thuốc Đau Bụng Smecta', 'category': 'medicine', 'brand': 'Smecta', 'description': 'Stomach ache medicine'},
+            {'name': 'Vitamin C Redoxon', 'category': 'medicine', 'brand': 'Redoxon', 'description': 'Vitamin C supplement'},
+            
+            # Additional Food Items
+            {'name': 'Bánh Mì Hamburger', 'category': 'food', 'brand': 'Kinh Đô', 'description': 'Hamburger buns'},
+            {'name': 'Sữa Chua Vinamilk', 'category': 'food', 'brand': 'Vinamilk', 'description': 'Vietnamese yogurt'},
+            {'name': 'Bánh Kẹp Chocolate', 'category': 'food', 'brand': 'Orion', 'description': 'Chocolate wafer sandwich'},
+            {'name': 'Mì Ly Kokomi', 'category': 'food', 'brand': 'Kokomi', 'description': 'Cup noodles instant meal'},
+            
+            # Miscellaneous
+            {'name': 'Que Tăm Chỉ Dental Floss', 'category': 'personal_care', 'brand': 'Generic', 'description': 'Dental floss picks'},
+            {'name': 'Khẩu Trang Y Tế', 'category': 'personal_care', 'brand': 'Generic', 'description': 'Medical face masks'},
+            {'name': 'Bao Tay Nhựa', 'category': 'household', 'brand': 'Generic', 'description': 'Disposable plastic gloves'},
         ]
 
         # Create Item objects

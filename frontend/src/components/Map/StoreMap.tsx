@@ -1,10 +1,29 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, LayersControl, ScaleControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js';
 import './StoreMap.css';
+
+// Helper function to format store type names for display
+const formatStoreTypeName = (type: string): string => {
+  const typeMap: { [key: string]: string } = {
+    '7-eleven': '7-Eleven',
+    'satrafoods': 'Satrafoods',
+    'familymart': 'FamilyMart',
+    'ministop': 'MINISTOP',
+    'bach-hoa-xanh': 'Bách hóa XANH',
+    'gs25': 'GS25',
+    'circle-k': 'Circle K',
+    'winmart': 'WinMart',
+    'coopxtra': 'Co.opXtra',
+    'other': 'Other',
+    'unknown': 'Unknown'
+  };
+  
+  return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
 
 interface StoreMapProps {
   stores?: any[];
@@ -308,7 +327,7 @@ const StoreMap: React.FC<StoreMapProps> = ({
                   <div className="popup-row">
                     <span className="popup-icon">🏪</span>
                     <span className="popup-label">Type:</span>
-                    <span className="popup-value">{store.store_type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</span>
+                    <span className="popup-value">{formatStoreTypeName(store.store_type)}</span>
                   </div>
                   
                   {store.phone && (

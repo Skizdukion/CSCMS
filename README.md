@@ -4,11 +4,12 @@ A web-based GIS-enabled management system for convenience stores across Ho Chi M
 
 ## Features
 
-- **Spatial Data Management**: Store locations with geographic coordinates
-- **CRUD Operations**: Add, search, edit, delete stores and inventory
-- **Location-Based Analytics**: Statistics and reports by geographic regions
-- **Interactive Maps**: Visualize stores and perform spatial analysis
-- **Real-time Reporting**: Export data in multiple formats
+- **Spatial Data Management**: Implement real data about HCM city district and Store locations with geographic coordinates
+- **CRUD Store Operations**: Add, edit, delete stores
+- **CRUD Item Operations**: Add, edit, delete items
+- **CRUD Store inventory Operations**: Add, edit, delete store inventory
+- **Complex search store Operations**: Search by name, filter by district/inventory, sort by nearest location, routing to store via google map
+- **Interactive Maps**: Visualize stores in maps data
 
 ## Technology Stack
 

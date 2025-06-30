@@ -71,11 +71,11 @@ const SearchableSelect: React.FC<SearchableSelectProps> = ({
       clearTimeout(debounceTimerRef.current);
     }
 
-    // Only search if:
+    // Search if:
     // 1. onSearch function is provided
-    // 2. searchTerm has minimum length (2 characters)
-    // 3. searchTerm is different from last searched term
-    if (onSearch && searchTerm.length >= 2 && searchTerm !== lastSearchTerm) {
+    // 2. searchTerm is different from last searched term
+    // 3. Either searchTerm has minimum length (2 characters) OR searchTerm is empty (to reset search)
+    if (onSearch && searchTerm !== lastSearchTerm && (searchTerm.length >= 2 || (searchTerm.length === 0 && lastSearchTerm.length > 0))) {
       debounceTimerRef.current = setTimeout(() => {
         onSearch(searchTerm);
         setLastSearchTerm(searchTerm); // Update last searched term

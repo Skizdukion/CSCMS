@@ -3,6 +3,25 @@ import { Store, Item } from '../../types';
 import { storeApi } from '../../services/api';
 import './ItemStoreForm.css';
 
+// Helper function to format store type names for display
+const formatStoreTypeName = (type: string): string => {
+  const typeMap: { [key: string]: string } = {
+    '7-eleven': '7-Eleven',
+    'satrafoods': 'Satrafoods',
+    'familymart': 'FamilyMart',
+    'ministop': 'MINISTOP',
+    'bach-hoa-xanh': 'Bách hóa XANH',
+    'gs25': 'GS25',
+    'circle-k': 'Circle K',
+    'winmart': 'WinMart',
+    'coopxtra': 'Co.opXtra',
+    'other': 'Other',
+    'unknown': 'Unknown'
+  };
+  
+  return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+};
+
 interface ItemStoreFormProps {
   item: Item;
   onSubmit: (storeIds: number[]) => void;
@@ -189,7 +208,7 @@ const ItemStoreForm: React.FC<ItemStoreFormProps> = ({
                             <div className="store-address">{store.address}</div>
                             <div className="store-details">
                               {store.district && <span className="store-district">{store.district}</span>}
-                              <span className="store-type">{store.store_type}</span>
+                              <span className="store-type">{formatStoreTypeName(store.store_type)}</span>
                               {!store.is_active && <span className="store-inactive">Inactive</span>}
                             </div>
                           </div>
