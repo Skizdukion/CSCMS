@@ -7,6 +7,7 @@ from rest_framework import viewsets, status, filters
 from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.measure import D
@@ -16,8 +17,13 @@ import operator
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 
-from .models import Store, Item, Inventory, District
-from .serializers import StoreSerializer, ItemSerializer, InventorySerializer, DistrictSerializer, StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer, StoreLocationSerializer
+from .models import Store, Item, Inventory, District, Review
+from .serializers import (
+    StoreSerializer, ItemSerializer, InventorySerializer, DistrictSerializer, 
+    StoreListSerializer, InventoryListSerializer, SpatialSearchSerializer, 
+    DistrictSearchSerializer, StoreStatisticsSerializer, DistrictStatisticsSerializer, 
+    StoreLocationSerializer, ReviewSerializer, ReviewListSerializer, StoreWithReviewsSerializer
+)
 
 class StoreViewSet(viewsets.ModelViewSet):
     """
@@ -27,6 +33,7 @@ class StoreViewSet(viewsets.ModelViewSet):
     """
     queryset = Store.objects.all()
     serializer_class = StoreSerializer
+    permission_classes = [AllowAny]  # Allow unauthenticated access for store viewing
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['store_type', 'city', 'district', 'is_active']
     search_fields = ['name', 'address', 'city']
@@ -287,6 +294,7 @@ class ItemViewSet(viewsets.ModelViewSet):
     """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+    permission_classes = [AllowAny]  # Allow unauthenticated access for item viewing
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'brand', 'is_active']
     search_fields = ['name', 'description', 'brand', 'barcode']
@@ -387,6 +395,7 @@ class InventoryViewSet(viewsets.ModelViewSet):
     """
     queryset = Inventory.objects.all()
     serializer_class = InventorySerializer
+    permission_classes = [AllowAny]  # Allow unauthenticated access for inventory viewing
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['store', 'item', 'item__category', 'is_available']
     search_fields = ['item__name', 'store__name', 'item__brand']
@@ -529,6 +538,7 @@ class DistrictViewSet(viewsets.ModelViewSet):
     """
     queryset = District.objects.all()
     serializer_class = DistrictSerializer
+    permission_classes = [AllowAny]  # Allow unauthenticated access for district viewing
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['city', 'district_type', 'is_active']
     search_fields = ['name', 'code', 'city']
@@ -698,12 +708,174 @@ class DistrictViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint for store reviews and ratings.
+    """
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]  # Allow unauthenticated access for viewing
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['store', 'user', 'rating', 'is_approved']
+    search_fields = ['comment', 'user__username', 'store__name']
+    ordering_fields = ['rating', 'created_at', 'updated_at']
+    ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filter queryset based on permissions."""
+        queryset = Review.objects.select_related('user', 'store')
+        
+        # Only show approved reviews to unauthenticated users
+        if not self.request.user.is_authenticated:
+            queryset = queryset.filter(is_approved=True)
+        
+        return queryset
+    
+    def get_permissions(self):
+        """Return appropriate permissions based on action."""
+        # Allow all actions for everyone (including anonymous users)
+        permission_classes = [AllowAny]
+        return [permission() for permission in permission_classes]
+    
+    def get_serializer_class(self):
+        """Return appropriate serializer class based on action."""
+        if self.action == 'list':
+            return ReviewListSerializer
+        return ReviewSerializer
+    
+    @action(detail=False, methods=['get'])
+    def store_reviews(self, request):
+        """Get reviews for a specific store."""
+        store_id = request.query_params.get('store_id')
+        if not store_id:
+            return Response(
+                {'error': 'store_id parameter is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            store = Store.objects.get(id=store_id)
+        except Store.DoesNotExist:
+            return Response(
+                {'error': 'Store not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        reviews = self.get_queryset().filter(store=store)
+        serializer = ReviewListSerializer(reviews, many=True)
+        
+        return Response({
+            'store_name': store.name,
+            'store_rating': store.rating,
+            'review_count': reviews.count(),
+            'reviews': serializer.data
+        })
+    
+    @action(detail=False, methods=['get'])
+    def user_reviews(self, request):
+        """Get reviews by the current user."""
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'No reviews available for anonymous users'}, 
+                status=status.HTTP_200_OK
+            )
+        
+        reviews = self.get_queryset().filter(user=request.user)
+        serializer = ReviewListSerializer(reviews, many=True)
+        
+        return Response({
+            'user_name': request.user.username,
+            'review_count': reviews.count(),
+            'reviews': serializer.data
+        })
+    
+    def create(self, request, *args, **kwargs):
+        """Create a new review."""
+        store_id = request.data.get('store')
+        if not store_id:
+            return Response(
+                {'error': 'store_id is required'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Handle anonymous users
+        if not request.user.is_authenticated:
+            # For anonymous users, use guest_name instead of user
+            review_data = request.data.copy()
+            review_data['guest_name'] = request.data.get('guest_name', 'Anonymous')
+            review_data['user'] = None  # No user for anonymous reviews
+            
+            # Check if guest already reviewed this store (by IP or other method)
+            # For now, we'll allow multiple anonymous reviews
+        else:
+            # For authenticated users
+            user = request.user
+            # Check if authenticated user already reviewed this store
+            existing_review = Review.objects.filter(
+                store_id=store_id, 
+                user=user
+            ).first()
+            
+            if existing_review:
+                return Response(
+                    {'error': 'You have already reviewed this store'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            review_data = request.data.copy()
+            review_data['user'] = user.id
+        
+        serializer = self.get_serializer(data=review_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        """Update a review."""
+        review = self.get_object()
+        
+        # Only allow users to update their own reviews
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Anonymous users cannot update reviews'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if review.user != request.user:
+            return Response(
+                {'error': 'You can only update your own reviews'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().update(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        """Delete a review."""
+        review = self.get_object()
+        
+        # Only allow users to delete their own reviews
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Anonymous users cannot delete reviews'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        if review.user != request.user:
+            return Response(
+                {'error': 'You can only delete your own reviews'}, 
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        return super().destroy(request, *args, **kwargs)
+
 class AnalyticsView(APIView):
     """
     API endpoint for comprehensive analytics data.
     
     Provides all analytics calculations in a single endpoint for better performance.
     """
+    permission_classes = [AllowAny]  # Allow unauthenticated access for analytics
     
     @extend_schema(
         summary="Get comprehensive analytics data",
@@ -848,6 +1020,8 @@ class AnalyticsView(APIView):
 
 class StatisticsView(APIView):
     """Placeholder view for statistics - to be implemented"""
+    permission_classes = [AllowAny]  # Allow unauthenticated access for statistics
+    
     def get(self, request):
         return Response({
             'message': 'Statistics endpoint - to be implemented',
@@ -856,6 +1030,8 @@ class StatisticsView(APIView):
 
 class SpatialSearchView(APIView):
     """Placeholder view for spatial search - to be implemented"""
+    permission_classes = [AllowAny]  # Allow unauthenticated access for spatial search
+    
     def get(self, request):
         return Response({
             'message': 'Spatial search endpoint - to be implemented',

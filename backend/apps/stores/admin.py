@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 from django.db.models import Count, Avg
 from django.contrib.admin import SimpleListFilter
 
-from backend.apps.stores.models import District, Store, Item, Inventory
+from backend.apps.stores.models import District, Store, Item, Inventory, Review
 
 
 class DistrictTypeFilter(SimpleListFilter):
@@ -314,6 +314,55 @@ class InventoryAdmin(admin.ModelAdmin):
         updated = queryset.update(is_available=False)
         self.message_user(request, f'{updated} items were marked as unavailable.')
     mark_unavailable.short_description = "Mark items as unavailable"
+
+
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    """Admin interface for Review model."""
+    
+    list_display = ['store', 'user', 'rating', 'comment_preview', 'is_approved', 'created_at']
+    list_filter = ['rating', 'is_approved', 'created_at', 'store', 'user']
+    search_fields = ['store__name', 'user__username', 'user__first_name', 'user__last_name', 'comment']
+    readonly_fields = ['created_at', 'updated_at']
+    ordering = ['-created_at']
+    
+    fieldsets = (
+        ('Review Information', {
+            'fields': ('store', 'user', 'rating', 'comment')
+        }),
+        ('Status', {
+            'fields': ('is_approved',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def comment_preview(self, obj):
+        """Show a preview of the comment."""
+        if obj.comment:
+            return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
+        return 'No comment'
+    comment_preview.short_description = 'Comment Preview'
+    
+    def get_queryset(self, request):
+        """Optimize queryset with select_related."""
+        return super().get_queryset(request).select_related('store', 'user')
+    
+    actions = ['approve_reviews', 'disapprove_reviews']
+    
+    def approve_reviews(self, request, queryset):
+        """Approve selected reviews."""
+        updated = queryset.update(is_approved=True)
+        self.message_user(request, f'{updated} reviews were successfully approved.')
+    approve_reviews.short_description = "Approve selected reviews"
+    
+    def disapprove_reviews(self, request, queryset):
+        """Disapprove selected reviews."""
+        updated = queryset.update(is_approved=False)
+        self.message_user(request, f'{updated} reviews were successfully disapproved.')
+    disapprove_reviews.short_description = "Disapprove selected reviews"
 
 
 # Customize admin site

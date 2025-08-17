@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Avg
 
 class District(models.Model):
     """District model with geographic boundaries for spatial analysis"""
@@ -310,3 +311,51 @@ class Inventory(models.Model):
             return 'unavailable'
         else:
             return 'available' 
+
+class Review(models.Model):
+    """Model for store reviews and ratings."""
+    
+    RATING_CHOICES = [
+        (1, '1 Star'),
+        (2, '2 Stars'),
+        (3, '3 Stars'),
+        (4, '4 Stars'),
+        (5, '5 Stars'),
+    ]
+    
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='store_reviews', null=True, blank=True)
+    guest_name = models.CharField(max_length=100, blank=True, help_text="Name for anonymous reviews")
+    rating = models.IntegerField(choices=RATING_CHOICES, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    comment = models.TextField(max_length=1000, blank=True)
+    is_approved = models.BooleanField(default=True, help_text="Whether this review is approved for display")  # type: ignore[assignment]
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['store', 'user']  # One review per user per store (only if user is not null)
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        reviewer_name = self.user.username if self.user else self.guest_name or "Anonymous"
+        return f"{reviewer_name}'s review for {self.store.name} - {self.rating} stars"
+    
+    def save(self, *args, **kwargs):
+        # Update store's average rating when review is saved
+        super().save(*args, **kwargs)
+        self.update_store_rating()
+    
+    def delete(self, *args, **kwargs):
+        # Update store's average rating when review is deleted
+        super().delete(*args, **kwargs)
+        self.update_store_rating()
+    
+    def update_store_rating(self):
+        """Update the store's average rating based on all approved reviews."""
+        approved_reviews = Review.objects.filter(store=self.store, is_approved=True)
+        if approved_reviews.exists():
+            avg_rating = approved_reviews.aggregate(Avg('rating'))['rating__avg']
+            self.store.rating = round(avg_rating, 1)
+        else:
+            self.store.rating = None
+        self.store.save(update_fields=['rating']) 

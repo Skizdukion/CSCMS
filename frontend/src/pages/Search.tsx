@@ -26,7 +26,7 @@ const formatStoreTypeName = (type: string): string => {
   return typeMap[type] || type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
 };
 
-const Stores: React.FC = () => {
+const Search: React.FC = () => {
   // State for stores data
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +49,8 @@ const Stores: React.FC = () => {
   // State for map modal
   const [showMapModal, setShowMapModal] = useState(false);
   const [selectedStoreForMap, setSelectedStoreForMap] = useState<Store | null>(null);
+
+
 
   // State for districts and inventory items
   const [districts, setDistricts] = useState<District[]>([]);
@@ -378,6 +380,8 @@ const Stores: React.FC = () => {
     setSelectedStoreForMap(null);
   };
 
+
+
   const handleRouteToStore = async (store: Store) => {
     // Check if store has location data - use the separate latitude/longitude fields
     if (!store.latitude || !store.longitude) {
@@ -551,13 +555,9 @@ const Stores: React.FC = () => {
 
       <div className="stores-header">
         <div className="stores-title">
-          <h2>Store Management</h2>
-          <p>Manage your convenience store locations and information</p>
+          <h2>Search Store</h2>
+          <p>Find convenience stores near you</p>
         </div>
-        <button className="add-store-btn" onClick={handleAddStore}>
-          <span>➕</span>
-          Add New Store
-        </button>
       </div>
 
       <div className="stores-filters">
@@ -808,12 +808,6 @@ const Stores: React.FC = () => {
                     <button className="action-btn route" onClick={() => handleRouteToStore(store)}>
                       🧭 Route
                     </button>
-                    <button className="action-btn edit" onClick={() => handleEditStore(store)}>
-                      ✏️ Edit
-                    </button>
-                    <button className="action-btn inventory" onClick={() => handleViewInventory(store)}>
-                      📦 Inventory
-                    </button>
                   </div>
                 </div>
               );
@@ -916,8 +910,10 @@ const Stores: React.FC = () => {
           onClose={handleCloseMapModal}
         />
       )}
+
+
     </div>
   );
 };
 
-export default Stores; 
+export default Search; 

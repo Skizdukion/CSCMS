@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Layout.css';
 
 interface LayoutProps {
@@ -8,15 +8,57 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  const navItems = [
-    { path: '/', label: 'Dashboard', icon: '📊', description: 'Overview and analytics' },
-    { path: '/stores', label: 'Stores', icon: '🏪', description: 'Store management' },
-    { path: '/items', label: 'Items', icon: '🛒', description: 'Product catalog' },
-    { path: '/inventory', label: 'Inventory', icon: '📦', description: 'Stock management' },
-    { path: '/analytics', label: 'Analytics', icon: '📈', description: 'Business insights' },
-  ];
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(userData));
+    } else {
+      setIsLoggedIn(false);
+      setUser(null);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+    setIsLoggedIn(false);
+    setUser(null);
+    navigate('/login');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const getNavItems = () => {
+    if (isLoggedIn) {
+      // Authenticated users see all pages except Search
+      return [
+        { path: '/', label: 'Dashboard', icon: '📊', description: 'Overview and analytics' },
+        { path: '/stores', label: 'Stores', icon: '🏪', description: 'Store management' },
+        { path: '/items', label: 'Items', icon: '🛒', description: 'Product catalog' },
+        { path: '/inventory', label: 'Inventory', icon: '📦', description: 'Stock management' },
+        { path: '/analytics', label: 'Analytics', icon: '📈', description: 'Business insights' },
+      ];
+    } else {
+      // Guest users see only Dashboard and Search
+      return [
+        { path: '/', label: 'Dashboard', icon: '📊', description: 'Overview and analytics' },
+        { path: '/search', label: 'Search', icon: '🔍', description: 'Find stores near you' },
+      ];
+    }
+  };
+
+  const navItems = getNavItems();
 
   const handleMobileMenuToggle = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -70,13 +112,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">👤</div>
-            <div className="user-info">
-              <span className="user-name">Admin User</span>
-              <span className="user-role">Store Manager</span>
+          {isLoggedIn ? (
+            <div className="user-profile">
+              <div className="user-avatar">👤</div>
+              <div className="user-info">
+                <span className="user-name">{user?.first_name || user?.username || 'User'}</span>
+                <span className="user-role">{user?.role_display || user?.role || 'User'}</span>
+              </div>
+              <button className="logout-btn" onClick={handleLogout} title="Logout">
+                🚪
+              </button>
             </div>
-          </div>
+          ) : (
+            <div className="login-section">
+              <button className="login-btn-sidebar" onClick={handleLogin}>
+                🔐 Login
+              </button>
+            </div>
+          )}
         </div>
       </aside>
 

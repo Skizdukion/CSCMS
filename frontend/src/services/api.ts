@@ -495,6 +495,155 @@ export const analyticsApi = {
   },
 };
 
+// Review API functions
+export const reviewApi = {
+  // Get reviews for a specific store
+  getStoreReviews: async (storeId: number): Promise<ApiResponse<any>> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`http://localhost:8000/api/v1/reviews/store_reviews/?store_id=${storeId}`, {
+        method: 'GET',
+        headers,
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, data };
+      } else {
+        return { success: false, data: null, message: data.error || 'Failed to fetch reviews' };
+      }
+    } catch (error) {
+      console.error('Error fetching store reviews:', error);
+      return { success: false, data: null, message: 'Network error occurred' };
+    }
+  },
+
+  // Create a new review
+  createReview: async (reviewData: { store: number; rating: number; comment: string }): Promise<ApiResponse<any>> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/reviews/', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(reviewData),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, data };
+      } else {
+        return { success: false, data: null, message: data.error || 'Failed to create review' };
+      }
+    } catch (error) {
+      console.error('Error creating review:', error);
+      return { success: false, data: null, message: 'Network error occurred' };
+    }
+  },
+
+  // Update an existing review
+  updateReview: async (reviewId: number, reviewData: { rating: number; comment: string }): Promise<ApiResponse<any>> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        return { success: false, data: null, message: 'Authentication required' };
+      }
+
+      const response = await fetch(`http://localhost:8000/api/v1/reviews/${reviewId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, data };
+      } else {
+        return { success: false, data: null, message: data.error || 'Failed to update review' };
+      }
+    } catch (error) {
+      console.error('Error updating review:', error);
+      return { success: false, data: null, message: 'Network error occurred' };
+    }
+  },
+
+  // Delete a review
+  deleteReview: async (reviewId: number): Promise<ApiResponse<any>> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        return { success: false, data: null, message: 'Authentication required' };
+      }
+
+      const response = await fetch(`http://localhost:8000/api/v1/reviews/${reviewId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        return { success: true, data: null };
+      } else {
+        const data = await response.json();
+        return { success: false, data: null, message: data.error || 'Failed to delete review' };
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      return { success: false, data: null, message: 'Network error occurred' };
+    }
+  },
+
+  // Get user's reviews
+  getUserReviews: async (): Promise<ApiResponse<any>> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        return { success: false, data: null, message: 'Authentication required' };
+      }
+
+      const response = await fetch('http://localhost:8000/api/v1/reviews/user_reviews/', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        return { success: true, data };
+      } else {
+        return { success: false, data: null, message: data.error || 'Failed to fetch user reviews' };
+      }
+    } catch (error) {
+      console.error('Error fetching user reviews:', error);
+      return { success: false, data: null, message: 'Network error occurred' };
+    }
+  },
+};
+
 // Export individual functions for convenience
 export const { getStores, getStore, createStore, updateStore, deleteStore, searchStores } = storeApi;
 export const { getItems, getItem, createItem, updateItem, deleteItem, searchItems } = itemApi;

@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 import json
 
-from backend.apps.stores.models import District, Store, Item, Inventory
+from backend.apps.stores.models import District, Store, Item, Inventory, Review
 
 
 class DistrictSerializer(serializers.ModelSerializer):
@@ -446,3 +446,100 @@ class StoreLocationSerializer(serializers.ModelSerializer):
     def get_longitude(self, obj):
         """Return longitude coordinate."""
         return obj.longitude 
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    """Serializer for Review model."""
+    
+    user_name = serializers.SerializerMethodField()
+    user_first_name = serializers.CharField(source='user.first_name', read_only=True)
+    user_last_name = serializers.CharField(source='user.last_name', read_only=True)
+    store_name = serializers.CharField(source='store.name', read_only=True)
+    
+    class Meta:
+        model = Review
+        fields = [
+            'id', 'store', 'store_name', 'user', 'user_name', 
+            'user_first_name', 'user_last_name', 'guest_name', 'rating', 'comment', 
+            'is_approved', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'user', 'user_first_name', 'user_last_name', 'store_name', 'created_at', 'updated_at']
+    
+    def get_user_name(self, obj):
+        """Get user's display name."""
+        if obj.user:
+            if obj.user.first_name and obj.user.last_name:
+                return f"{obj.user.first_name} {obj.user.last_name}"
+            return obj.user.username
+        return obj.guest_name or "Anonymous"
+    
+    def validate_rating(self, value):
+        """Validate rating is between 1 and 5."""
+        if value < 1 or value > 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
+        return value
+    
+    def validate_comment(self, value):
+        """Validate comment length."""
+        if value and len(value.strip()) > 1000:
+            raise serializers.ValidationError("Comment cannot exceed 1000 characters.")
+        return value.strip() if value else value
+    
+    def create(self, validated_data):
+        """Create review with appropriate user handling."""
+        # User is already set in the view, so we don't override it here
+        return super().create(validated_data)
+
+
+class ReviewListSerializer(serializers.ModelSerializer):
+    """Simplified serializer for review listing."""
+    
+    user_name = serializers.SerializerMethodField()
+    store_name = serializers.CharField(source='store.name', read_only=True)
+    
+    class Meta:
+        model = Review
+        fields = [
+            'id', 'store_name', 'user_name', 'rating', 'comment', 
+            'created_at'
+        ]
+        read_only_fields = ['id', 'store_name', 'user_name', 'created_at']
+    
+    def get_user_name(self, obj):
+        """Get user's display name."""
+        if obj.user:
+            if obj.user.first_name and obj.user.last_name:
+                return f"{obj.user.first_name} {obj.user.last_name}"
+            return obj.user.username
+        return obj.guest_name or "Anonymous"
+
+
+class StoreWithReviewsSerializer(StoreListSerializer):
+    """Serializer for store with reviews."""
+    
+    reviews = ReviewListSerializer(many=True, read_only=True)
+    review_count = serializers.SerializerMethodField()
+    user_review = serializers.SerializerMethodField()
+    
+    class Meta(StoreListSerializer.Meta):
+        fields = StoreListSerializer.Meta.fields + ['reviews', 'review_count', 'user_review']
+    
+    def get_review_count(self, obj):
+        """Get count of approved reviews."""
+        return obj.reviews.filter(is_approved=True).count()
+    
+    def get_user_review(self, obj):
+        """Get current user's review for this store."""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            try:
+                user_review = obj.reviews.get(user=request.user)
+                return {
+                    'id': user_review.id,
+                    'rating': user_review.rating,
+                    'comment': user_review.comment,
+                    'created_at': user_review.created_at
+                }
+            except Review.DoesNotExist:
+                return None
+        return None 

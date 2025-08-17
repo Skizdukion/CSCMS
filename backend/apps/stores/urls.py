@@ -6,7 +6,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
-from backend.apps.stores.views import DistrictViewSet, StoreViewSet, ItemViewSet, InventoryViewSet, AnalyticsView
+from backend.apps.stores.views import DistrictViewSet, StoreViewSet, ItemViewSet, InventoryViewSet, ReviewViewSet, AnalyticsView
 
 # Create a router and register our viewsets with it
 router = DefaultRouter()
@@ -14,6 +14,7 @@ router.register(r'districts', DistrictViewSet)
 router.register(r'stores', StoreViewSet)
 router.register(r'items', ItemViewSet)
 router.register(r'inventory', InventoryViewSet)
+router.register(r'reviews', ReviewViewSet)
 
 app_name = 'stores'
 

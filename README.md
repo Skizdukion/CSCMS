@@ -153,6 +153,14 @@ PYTHONPATH=$(pwd) python backend/manage.py seed_products --clear
 PYTHONPATH=$(pwd) python backend/manage.py seed_inventory --clear
 ```
 
+**Part 5: Seed Users**
+```bash
+# Seed predefined user accounts
+PYTHONPATH=$(pwd) python backend/manage.py seed_users
+
+# Force update existing users
+PYTHONPATH=$(pwd) python backend/manage.py seed_users --force
+```
 ### Frontend Setup
 
 1. Install Node.js dependencies:

@@ -114,4 +114,20 @@ export interface UserLocation {
   latitude: number;
   longitude: number;
   accuracy?: number;
+}
+
+// Review interface
+export interface Review {
+  id: number;
+  store: number;
+  user?: number;
+  user_name: string;
+  user_first_name?: string;
+  user_last_name?: string;
+  guest_name?: string;
+  rating: number;
+  comment: string;
+  is_approved: boolean;
+  created_at: string;
+  updated_at: string;
 } 
