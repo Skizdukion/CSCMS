@@ -1,26 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../services/api';
 import './Login.css';
 
 interface LoginFormData {
   username: string;
   password: string;
-}
-
-interface LoginResponse {
-  user: {
-    id: number;
-    username: string;
-    email: string;
-    first_name: string;
-    last_name: string;
-    role: string;
-    role_display: string;
-  };
-  tokens: {
-    access: string;
-    refresh: string;
-  };
 }
 
 const Login: React.FC = () => {
@@ -55,26 +40,18 @@ const Login: React.FC = () => {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/users/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await login(formData);
 
-      const data: LoginResponse = await response.json();
-
-      if (response.ok && data.user && data.tokens) {
+      if (response.success && response.data) {
         // Store tokens in localStorage
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('access_token', response.data.tokens.access);
+        localStorage.setItem('refresh_token', response.data.tokens.refresh);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         
         // Redirect to home page
         navigate('/');
       } else {
-        setError('Login failed. Please check your credentials.');
+        setError(response.message || 'Login failed. Please check your credentials.');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -95,24 +72,16 @@ const Login: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/users/auth/login/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(demoCredentials[demoType]),
-      });
+      const response = await login(demoCredentials[demoType]);
 
-      const data: LoginResponse = await response.json();
-
-      if (response.ok && data.user && data.tokens) {
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      if (response.success && response.data) {
+        localStorage.setItem('access_token', response.data.tokens.access);
+        localStorage.setItem('refresh_token', response.data.tokens.refresh);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         
         navigate('/');
       } else {
-        setError('Demo login failed.');
+        setError(response.message || 'Demo login failed.');
       }
     } catch (error) {
       console.error('Demo login error:', error);

@@ -495,6 +495,89 @@ export const analyticsApi = {
   },
 };
 
+// Authentication API functions
+export const authApi = {
+  // Login user
+  login: async (credentials: { username: string; password: string }): Promise<ApiResponse<{
+    user: {
+      id: number;
+      username: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      role: string;
+      role_display: string;
+    };
+    tokens: {
+      access: string;
+      refresh: string;
+    };
+  }>> => {
+    return apiRequest<{
+      user: {
+        id: number;
+        username: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        role: string;
+        role_display: string;
+      };
+      tokens: {
+        access: string;
+        refresh: string;
+      };
+    }>('/users/auth/login/', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+    });
+  },
+
+  // Logout user
+  logout: async (refreshToken?: string): Promise<ApiResponse<null>> => {
+    const body = refreshToken ? JSON.stringify({ refresh_token: refreshToken }) : undefined;
+    return apiRequest<null>('/users/auth/logout/', {
+      method: 'POST',
+      body,
+    });
+  },
+
+  // Refresh token
+  refreshToken: async (refreshToken: string): Promise<ApiResponse<{
+    access: string;
+    refresh: string;
+  }>> => {
+    return apiRequest<{
+      access: string;
+      refresh: string;
+    }>('/users/token/refresh/', {
+      method: 'POST',
+      body: JSON.stringify({ refresh: refreshToken }),
+    });
+  },
+
+  // Get current user profile
+  getCurrentUser: async (): Promise<ApiResponse<{
+    id: number;
+    username: string;
+    email: string;
+    first_name: string;
+    last_name: string;
+    role: string;
+    role_display: string;
+  }>> => {
+    return apiRequest<{
+      id: number;
+      username: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      role: string;
+      role_display: string;
+    }>('/users/users/profile/');
+  },
+};
+
 // Review API functions
 export const reviewApi = {
   // Get reviews for a specific store
@@ -542,4 +625,5 @@ export const { getStores, getStore, createStore, updateStore, deleteStore, searc
 export const { getItems, getItem, createItem, updateItem, deleteItem, searchItems } = itemApi;
 export const { getDistricts, getDistrict } = districtApi;
 export const { getInventory, getInventoryItem, createInventoryItem, updateInventoryItem, deleteInventoryItem, searchInventory, searchNearbyInventory, getAvailableItems } = inventoryApi;
-export const { getAnalytics } = analyticsApi; 
+export const { getAnalytics } = analyticsApi;
+export const { login, logout, refreshToken, getCurrentUser } = authApi; 
